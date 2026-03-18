@@ -3,7 +3,8 @@ import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../lib/api';
 import AgendaEditor from '../components/AgendaEditor';
-import type { AgendaItemBase, MeetingFormat } from '../types';
+import type { AgendaItemBase, MeetingFormat, AlarmType } from '../types';
+import { DEFAULT_MEETING_SETTINGS } from '../types';
 
 type EditItem = Omit<AgendaItemBase, 'id'> & { id: string };
 
@@ -41,6 +42,9 @@ export default function NewMeetingPage() {
   const [participantsStr, setParticipantsStr] = useState('');
   const [chosenTemplate, setChosenTemplate] = useState(templateId || '');
   const [items, setItems] = useState<EditItem[]>([]);
+  const [alarmsEnabled, setAlarmsEnabled] = useState(DEFAULT_MEETING_SETTINGS.alarms_enabled);
+  const [alarmMinsBefore, setAlarmMinsBefore] = useState(DEFAULT_MEETING_SETTINGS.alarm_minutes_before);
+  const [alarmType, setAlarmType] = useState<AlarmType>(DEFAULT_MEETING_SETTINGS.alarm_type);
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -54,6 +58,9 @@ export default function NewMeetingPage() {
       setParticipantsStr(existingMeeting.participants.join(', '));
       setChosenTemplate(existingMeeting.template_id || '');
       setItems(existingMeeting.items.map(i => ({ ...i })));
+      if (existingMeeting.alarms_enabled !== undefined) setAlarmsEnabled(existingMeeting.alarms_enabled);
+      if (existingMeeting.alarm_minutes_before !== undefined) setAlarmMinsBefore(existingMeeting.alarm_minutes_before);
+      if (existingMeeting.alarm_type) setAlarmType(existingMeeting.alarm_type);
     }
   }, [existingMeeting]);
 
@@ -101,6 +108,9 @@ export default function NewMeetingPage() {
       facilitator: facilitator.trim(),
       participants,
       template_id: chosenTemplate || null,
+      alarms_enabled: alarmsEnabled,
+      alarm_minutes_before: alarmMinsBefore,
+      alarm_type: alarmType,
       items: items.map((item, idx) => ({
         title: item.title,
         duration_minutes: item.duration_minutes,
@@ -188,6 +198,66 @@ export default function NewMeetingPage() {
             <input value={participantsStr} onChange={e => setParticipantsStr(e.target.value)}
               placeholder="Alice, Bob, Carol"
               className="w-full border-[1.5px] border-bdr rounded-sm px-3 py-2 text-sm text-navy bg-srf focus:border-teal transition-colors" />
+          </div>
+        </div>
+      </div>
+
+      {/* Meeting Settings */}
+      <div className="bg-srf border-[1.5px] border-bdr rounded-card shadow-card p-5">
+        <h2 className="font-extrabold text-navy text-sm mb-4">Meeting Settings</h2>
+        <div className="grid gap-4 sm:grid-cols-3 items-end">
+          {/* Alarms toggle */}
+          <div>
+            <label className="block text-[9px] font-extrabold uppercase tracking-widest text-muted mb-1">Alarms</label>
+            <button
+              type="button"
+              onClick={() => setAlarmsEnabled(v => !v)}
+              className={`flex items-center gap-2 w-full px-3 py-2 rounded-sm border-[1.5px] text-sm font-bold transition-all ${
+                alarmsEnabled
+                  ? 'bg-[rgba(43,188,200,0.08)] text-teal-dk border-[rgba(43,188,200,0.3)]'
+                  : 'text-muted border-bdr'
+              }`}
+            >
+              <span className={`w-8 h-[18px] rounded-full relative transition-all ${alarmsEnabled ? 'bg-teal' : 'bg-bdr'}`}>
+                <span className={`absolute top-[2px] w-[14px] h-[14px] rounded-full bg-white shadow transition-all ${alarmsEnabled ? 'left-[18px]' : 'left-[2px]'}`} />
+              </span>
+              {alarmsEnabled ? '🔔 On' : '🔕 Off'}
+            </button>
+          </div>
+
+          {/* Alarm time before */}
+          <div>
+            <label className="block text-[9px] font-extrabold uppercase tracking-widest text-muted mb-1">
+              Alert Before Session
+            </label>
+            <select
+              value={alarmMinsBefore}
+              onChange={e => setAlarmMinsBefore(parseInt(e.target.value))}
+              disabled={!alarmsEnabled}
+              className="w-full border-[1.5px] border-bdr rounded-sm px-3 py-2 text-sm text-navy bg-srf focus:border-teal transition-colors disabled:opacity-40"
+            >
+              <option value={1}>1 minute before</option>
+              <option value={2}>2 minutes before</option>
+              <option value={5}>5 minutes before</option>
+              <option value={10}>10 minutes before</option>
+            </select>
+          </div>
+
+          {/* Alarm type */}
+          <div>
+            <label className="block text-[9px] font-extrabold uppercase tracking-widest text-muted mb-1">
+              Alarm Type
+            </label>
+            <select
+              value={alarmType}
+              onChange={e => setAlarmType(e.target.value as AlarmType)}
+              disabled={!alarmsEnabled}
+              className="w-full border-[1.5px] border-bdr rounded-sm px-3 py-2 text-sm text-navy bg-srf focus:border-teal transition-colors disabled:opacity-40"
+            >
+              <option value="chime">Chime</option>
+              <option value="beep">Beep</option>
+              <option value="notification">Browser Notification</option>
+            </select>
           </div>
         </div>
       </div>

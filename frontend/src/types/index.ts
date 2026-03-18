@@ -68,6 +68,20 @@ export type MeetingItemUpdate = Partial<
   Pick<MeetingItem, 'status' | 'actual_start_at' | 'actual_end_at' | 'actual_duration_minutes' | 'notes'>
 >;
 
+export type AlarmType = 'chime' | 'beep' | 'notification';
+
+export interface MeetingSettings {
+  alarms_enabled: boolean;
+  alarm_minutes_before: number;
+  alarm_type: AlarmType;
+}
+
+export const DEFAULT_MEETING_SETTINGS: MeetingSettings = {
+  alarms_enabled: true,
+  alarm_minutes_before: 1,
+  alarm_type: 'chime',
+};
+
 export interface Meeting {
   id: string;
   user_id: string;
@@ -83,6 +97,9 @@ export interface Meeting {
   actual_start_at: string | null;
   actual_end_at: string | null;
   notes: string;
+  alarms_enabled: boolean;
+  alarm_minutes_before: number;
+  alarm_type: AlarmType;
   items: MeetingItem[];
   created_at: string;
   updated_at: string;

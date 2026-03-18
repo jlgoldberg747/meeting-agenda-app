@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
+import * as XLSX from 'xlsx';
 import type { AgendaItemBase, MeetingFormat } from '../types';
 import { FORMATS, m2t, t2m } from '../types';
 
@@ -187,10 +188,117 @@ function ItemModal({
   );
 }
 
+// ─── File Import Parsing ──────────────────────────────────────────────────────
+function parseImportedRows(rows: Record<string, unknown>[]): EditableItem[] {
+  return rows.map((row, idx) => {
+    const title =
+      (row['title'] ?? row['Title'] ?? row['name'] ?? row['Name'] ?? row['session'] ?? row['Session'] ?? 'Untitled') as string;
+    const rawDur = row['duration'] ?? row['Duration'] ?? row['duration_minutes'] ?? row['Duration (min)'] ?? row['minutes'] ?? row['Minutes'] ?? 30;
+    const duration_minutes = Math.max(1, parseInt(String(rawDur), 10) || 30);
+    const rawFmt = (row['format'] ?? row['Format'] ?? row['type'] ?? row['Type'] ?? row['category'] ?? row['Category'] ?? 'O') as string;
+    const format = (FORMATS.find(f => f.c === rawFmt.toUpperCase())?.c ?? 'O') as MeetingFormat;
+    const notes = (row['notes'] ?? row['Notes'] ?? row['description'] ?? row['Description'] ?? '') as string;
+    const objective = (row['objective'] ?? row['Objective'] ?? '') as string;
+    const approach = (row['approach'] ?? row['Approach'] ?? '') as string;
+    return {
+      id: newTempId(),
+      position: idx,
+      title: String(title),
+      duration_minutes,
+      format,
+      objective: String(objective),
+      illustration: '',
+      approach: String(approach || notes),
+      is_break: format === 'BRK',
+      notes: String(notes),
+    };
+  }).filter(item => item.title && item.title !== 'Untitled');
+}
+
+function parseFile(file: File): Promise<EditableItem[]> {
+  return new Promise((resolve, reject) => {
+    const ext = file.name.split('.').pop()?.toLowerCase();
+
+    if (ext === 'json') {
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const parsed = JSON.parse(reader.result as string);
+          const rows = Array.isArray(parsed) ? parsed : parsed.items ?? parsed.sessions ?? parsed.agenda ?? [];
+          resolve(parseImportedRows(rows));
+        } catch (e) {
+          reject(new Error('Invalid JSON file'));
+        }
+      };
+      reader.onerror = () => reject(new Error('Failed to read file'));
+      reader.readAsText(file);
+    } else if (ext === 'csv') {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const wb = XLSX.read(reader.result, { type: 'string' });
+        const ws = wb.Sheets[wb.SheetNames[0]];
+        const rows = XLSX.utils.sheet_to_json(ws);
+        resolve(parseImportedRows(rows as Record<string, unknown>[]));
+      };
+      reader.onerror = () => reject(new Error('Failed to read file'));
+      reader.readAsText(file);
+    } else if (ext === 'xlsx' || ext === 'xls') {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const wb = XLSX.read(reader.result, { type: 'array' });
+        const ws = wb.Sheets[wb.SheetNames[0]];
+        const rows = XLSX.utils.sheet_to_json(ws);
+        resolve(parseImportedRows(rows as Record<string, unknown>[]));
+      };
+      reader.onerror = () => reject(new Error('Failed to read file'));
+      reader.readAsArrayBuffer(file);
+    } else {
+      reject(new Error('Unsupported file type. Use .xlsx, .csv, or .json'));
+    }
+  });
+}
+
 // ─── Main Component ───────────────────────────────────────────────────────────
 export default function AgendaEditor({ items, startTime, onChange, readOnly }: Props) {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [dragOver, setDragOver] = useState<string | null>(null);
+  const [fileDragOver, setFileDragOver] = useState(false);
+  const [importError, setImportError] = useState('');
+
+  const handleFileDrop = useCallback(async (e: React.DragEvent) => {
+    e.preventDefault();
+    setFileDragOver(false);
+    setImportError('');
+    const file = e.dataTransfer.files[0];
+    if (!file) return;
+    try {
+      const parsed = await parseFile(file);
+      if (parsed.length === 0) {
+        setImportError('No valid agenda items found in file');
+        return;
+      }
+      onChange([...items, ...parsed]);
+    } catch (err: any) {
+      setImportError(err.message || 'Failed to parse file');
+    }
+  }, [items, onChange]);
+
+  const handleFileSelect = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+    setImportError('');
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const parsed = await parseFile(file);
+      if (parsed.length === 0) {
+        setImportError('No valid agenda items found in file');
+        return;
+      }
+      onChange([...items, ...parsed]);
+    } catch (err: any) {
+      setImportError(err.message || 'Failed to parse file');
+    }
+    e.target.value = '';
+  }, [items, onChange]);
 
   const editingItem = editingId ? items.find(i => i.id === editingId) ?? null : null;
 
@@ -278,6 +386,39 @@ export default function AgendaEditor({ items, startTime, onChange, readOnly }: P
   return (
     <>
       <div>
+        {/* File import drop zone */}
+        <div
+          onDragOver={e => { e.preventDefault(); setFileDragOver(true); }}
+          onDragLeave={() => setFileDragOver(false)}
+          onDrop={handleFileDrop}
+          className={`mb-3 border-[1.5px] border-dashed rounded-sm px-4 py-3 text-center transition-all ${
+            fileDragOver
+              ? 'border-teal bg-[var(--teal-glow)] text-teal-dk'
+              : 'border-bdr text-muted hover:border-teal hover:text-teal-dk'
+          }`}
+        >
+          <div className="text-[10px] font-extrabold uppercase tracking-wider mb-0.5">
+            {fileDragOver ? 'Drop file to import' : 'Import Agenda'}
+          </div>
+          <div className="text-[9px]">
+            Drag & drop an Excel (.xlsx), CSV, or JSON file here
+            <label className="ml-1.5 text-teal-dk font-bold cursor-pointer hover:underline">
+              or browse
+              <input
+                type="file"
+                accept=".xlsx,.xls,.csv,.json"
+                onChange={handleFileSelect}
+                className="hidden"
+              />
+            </label>
+          </div>
+        </div>
+        {importError && (
+          <div className="text-[10px] text-coral bg-[rgba(239,68,68,0.08)] border border-[rgba(239,68,68,0.2)] rounded-sm px-3 py-2 mb-3">
+            {importError}
+          </div>
+        )}
+
         <DragDropContext onDragEnd={onDragEnd}>
           <Droppable droppableId="agenda-items">
             {(provided) => (
