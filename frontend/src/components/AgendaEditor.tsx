@@ -1,8 +1,8 @@
 import { useState, useCallback } from 'react';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
-import * as XLSX from 'xlsx';
 import type { AgendaItemBase, MeetingFormat } from '../types';
 import { FORMATS, m2t, t2m } from '../types';
+import { parseExcelFile } from '../lib/excelParser';
 
 type EditableItem = Omit<AgendaItemBase, 'id'> & { id: string; tempId?: string };
 
@@ -189,74 +189,7 @@ function ItemModal({
 }
 
 // ─── File Import Parsing ──────────────────────────────────────────────────────
-function parseImportedRows(rows: Record<string, unknown>[]): EditableItem[] {
-  return rows.map((row, idx) => {
-    const title =
-      (row['title'] ?? row['Title'] ?? row['name'] ?? row['Name'] ?? row['session'] ?? row['Session'] ?? 'Untitled') as string;
-    const rawDur = row['duration'] ?? row['Duration'] ?? row['duration_minutes'] ?? row['Duration (min)'] ?? row['minutes'] ?? row['Minutes'] ?? 30;
-    const duration_minutes = Math.max(1, parseInt(String(rawDur), 10) || 30);
-    const rawFmt = (row['format'] ?? row['Format'] ?? row['type'] ?? row['Type'] ?? row['category'] ?? row['Category'] ?? 'O') as string;
-    const format = (FORMATS.find(f => f.c === rawFmt.toUpperCase())?.c ?? 'O') as MeetingFormat;
-    const notes = (row['notes'] ?? row['Notes'] ?? row['description'] ?? row['Description'] ?? '') as string;
-    const objective = (row['objective'] ?? row['Objective'] ?? '') as string;
-    const approach = (row['approach'] ?? row['Approach'] ?? '') as string;
-    return {
-      id: newTempId(),
-      position: idx,
-      title: String(title),
-      duration_minutes,
-      format,
-      objective: String(objective),
-      illustration: '',
-      approach: String(approach || notes),
-      is_break: format === 'BRK',
-      notes: String(notes),
-    };
-  }).filter(item => item.title && item.title !== 'Untitled');
-}
-
-function parseFile(file: File): Promise<EditableItem[]> {
-  return new Promise((resolve, reject) => {
-    const ext = file.name.split('.').pop()?.toLowerCase();
-
-    if (ext === 'json') {
-      const reader = new FileReader();
-      reader.onload = () => {
-        try {
-          const parsed = JSON.parse(reader.result as string);
-          const rows = Array.isArray(parsed) ? parsed : parsed.items ?? parsed.sessions ?? parsed.agenda ?? [];
-          resolve(parseImportedRows(rows));
-        } catch (e) {
-          reject(new Error('Invalid JSON file'));
-        }
-      };
-      reader.onerror = () => reject(new Error('Failed to read file'));
-      reader.readAsText(file);
-    } else if (ext === 'csv') {
-      const reader = new FileReader();
-      reader.onload = () => {
-        const wb = XLSX.read(reader.result, { type: 'string' });
-        const ws = wb.Sheets[wb.SheetNames[0]];
-        const rows = XLSX.utils.sheet_to_json(ws);
-        resolve(parseImportedRows(rows as Record<string, unknown>[]));
-      };
-      reader.onerror = () => reject(new Error('Failed to read file'));
-      reader.readAsText(file);
-    } else if (ext === 'xlsx' || ext === 'xls') {
-      const reader = new FileReader();
-      reader.onload = () => {
-        const wb = XLSX.read(reader.result, { type: 'array' });
-        const ws = wb.Sheets[wb.SheetNames[0]];
-        const rows = XLSX.utils.sheet_to_json(ws);
-        resolve(parseImportedRows(rows as Record<string, unknown>[]));
-      };
-      reader.onerror = () => reject(new Error('Failed to read file'));
-      reader.readAsArrayBuffer(file);
-    } else {
-      reject(new Error('Unsupported file type. Use .xlsx, .csv, or .json'));
-    }
-  });
-}
+// parseImportedRows and parseFile replaced by shared excelParser.ts
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 export default function AgendaEditor({ items, startTime, onChange, readOnly }: Props) {
@@ -272,12 +205,16 @@ export default function AgendaEditor({ items, startTime, onChange, readOnly }: P
     const file = e.dataTransfer.files[0];
     if (!file) return;
     try {
-      const parsed = await parseFile(file);
-      if (parsed.length === 0) {
-        setImportError('No valid agenda items found in file');
+      const result = await parseExcelFile(file);
+      if (result.items.length === 0) {
+        setImportError(result.warnings?.[0] || 'No valid agenda items found in file');
         return;
       }
-      onChange([...items, ...parsed]);
+      const mapped: EditableItem[] = result.items.map(item => ({
+        ...item,
+        format: item.format as MeetingFormat,
+      }));
+      onChange([...items, ...mapped]);
     } catch (err: any) {
       setImportError(err.message || 'Failed to parse file');
     }
@@ -288,12 +225,16 @@ export default function AgendaEditor({ items, startTime, onChange, readOnly }: P
     const file = e.target.files?.[0];
     if (!file) return;
     try {
-      const parsed = await parseFile(file);
-      if (parsed.length === 0) {
-        setImportError('No valid agenda items found in file');
+      const result = await parseExcelFile(file);
+      if (result.items.length === 0) {
+        setImportError(result.warnings?.[0] || 'No valid agenda items found in file');
         return;
       }
-      onChange([...items, ...parsed]);
+      const mapped: EditableItem[] = result.items.map(item => ({
+        ...item,
+        format: item.format as MeetingFormat,
+      }));
+      onChange([...items, ...mapped]);
     } catch (err: any) {
       setImportError(err.message || 'Failed to parse file');
     }

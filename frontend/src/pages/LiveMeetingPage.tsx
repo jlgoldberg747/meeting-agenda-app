@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 import * as XLSX from 'xlsx';
 import { api } from '../lib/api';
+import { parseExcelFile } from '../lib/excelParser';
 import {
   calcSchedule, getFormat, FORMATS, m2t, t2m, nowMinutes,
   type MeetingItem, type ScheduledItem, type MeetingFormat,
@@ -530,8 +531,20 @@ export default function LiveMeetingPage() {
 
   const handleFileImport = async (file: File) => {
     try {
-      const result = await parseImportFile(file, editMeta.start_time);
-      if (result.items.length > 0) setEditItems(result.items);
+      const result = await parseExcelFile(file, editMeta.start_time);
+      // Map ParsedItem → MeetingItem shape
+      const mapped: MeetingItem[] = result.items.map(item => ({
+        ...item,
+        format: item.format as MeetingFormat,
+        meeting_id: '',
+        status: 'pending' as const,
+        actual_start_at: null,
+        actual_end_at: null,
+        actual_duration_minutes: null,
+        created_at: '',
+        updated_at: '',
+      }));
+      if (mapped.length > 0) setEditItems(mapped);
       if (result.meta) {
         setEditMeta(prev => ({
           ...prev,
@@ -545,7 +558,11 @@ export default function LiveMeetingPage() {
         }));
       }
       if (result.newStartTime) setEditMeta(prev => ({ ...prev, start_time: result.newStartTime! }));
-    } catch { /* ignore */ }
+      if (result.warnings?.length) console.warn('[Import warnings]', result.warnings);
+    } catch (err: any) {
+      console.error('[Import error]', err?.message || err);
+      alert(`Import failed: ${err?.message || 'Unknown error'}`);
+    }
   };
 
   // ── Loading / Not Found ────────────────────────────────────────────────────
