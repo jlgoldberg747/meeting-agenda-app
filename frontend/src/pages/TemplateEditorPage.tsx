@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import * as XLSX from 'xlsx';
 import { api } from '../lib/api';
 import AgendaEditor from '../components/AgendaEditor';
 import type { AgendaItemBase, MeetingFormat } from '../types';
+import { FORMATS, m2t, t2m } from '../types';
 
 type EditItem = Omit<AgendaItemBase, 'id'> & { id: string };
 
@@ -65,6 +67,54 @@ export default function TemplateEditorPage() {
     });
   };
 
+  const downloadTemplateXlsx = () => {
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([
+      ['Organisation', ''],
+      ['Meeting Title', ''],
+      ['Subtitle', ''],
+      ['Date', ''],
+      ['Location', ''],
+      ['Facilitator', ''],
+      ['Start Time', '09:00'],
+    ]), 'Meeting metadata');
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([
+      ['Start', 'Finish', 'Format', 'Topic', 'Objective', 'Illustration', 'Approach'],
+      ['09:00', '09:30', 'FIP', 'Opening', '', '', ''],
+      ['', '10:00', 'WND', 'Session 1', '', '', ''],
+      ['', '10:15', 'BRK', 'Tea Break', '', '', ''],
+    ]), 'Detailed agenda');
+    const fd: string[][] = [['Format types']];
+    FORMATS.forEach(f => fd.push([`${f.c} — ${f.l}`]));
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(fd), 'List');
+    XLSX.writeFile(wb, 'Agenda_Template.xlsx');
+  };
+
+  const exportAgendaXlsx = () => {
+    if (items.length === 0) return;
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([
+      ['Template Name', name],
+      ['Description', description],
+      ['Start Time', startTime],
+    ]), 'Meeting metadata');
+    let cur = t2m(startTime);
+    const agendaData = [['Start', 'Finish', 'Format', 'Topic', 'Objective', 'Illustration', 'Approach']];
+    items.forEach(item => {
+      const st = m2t(cur);
+      cur += item.duration_minutes;
+      const en = m2t(cur);
+      agendaData.push([st, en, item.format || '', item.title, item.objective || '', item.illustration || '', item.approach || '']);
+    });
+    const ws2 = XLSX.utils.aoa_to_sheet(agendaData);
+    ws2['!cols'] = [{ wch: 10 }, { wch: 10 }, { wch: 8 }, { wch: 22 }, { wch: 35 }, { wch: 18 }, { wch: 45 }];
+    XLSX.utils.book_append_sheet(wb, ws2, 'Detailed agenda');
+    const fd: string[][] = [['Format types']];
+    FORMATS.forEach(f => fd.push([`${f.c} — ${f.l}`]));
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(fd), 'List');
+    XLSX.writeFile(wb, `${(name || 'Template').replace(/[^a-zA-Z0-9 ]/g, '')}_Agenda.xlsx`);
+  };
+
   const addDefaultItems = () => {
     setItems([
       { id: 'tmp-1', position: 0, title: 'Welcome & Intro', duration_minutes: 10, format: 'FIP', objective: '', illustration: '', approach: '', is_break: false, notes: '' },
@@ -90,6 +140,21 @@ export default function TemplateEditorPage() {
             </h1>
           </div>
           <div className="flex gap-2">
+            <button
+              onClick={downloadTemplateXlsx}
+              className="px-3 py-2 rounded-full font-extrabold text-[10px] uppercase tracking-wider text-muted border-[1.5px] border-bdr hover:border-teal hover:text-teal-dk transition-all"
+              title="Download blank template .xlsx"
+            >
+              ↓ Template
+            </button>
+            {items.length > 0 && (
+              <button
+                onClick={exportAgendaXlsx}
+                className="px-3 py-2 rounded-full font-extrabold text-[10px] uppercase tracking-wider text-navy border-[1.5px] border-bdr hover:border-teal hover:text-teal-dk transition-all"
+              >
+                ↓ Export .xlsx
+              </button>
+            )}
             <button
               onClick={() => navigate('/templates')}
               className="px-4 py-2 rounded-full font-extrabold text-[11px] uppercase tracking-wider text-muted border-[1.5px] border-bdr hover:border-teal hover:text-teal-dk transition-all"

@@ -103,11 +103,41 @@ export function playChimeByType(type: ChimeType, loud = false) {
   }
 }
 
+// ── Brand Import ──────────────────────────────────────────────────────────────
+function applyBrand(txt: string) {
+  const vars: Record<string, string> = {};
+  const colorPairs: [RegExp, string][] = [
+    [/teal[:\s]+([#][0-9a-fA-F]{3,8})/i, '--teal'],
+    [/navy[:\s]+([#][0-9a-fA-F]{3,8})/i, '--navy'],
+    [/accent[:\s]+([#][0-9a-fA-F]{3,8})/i, '--teal'],
+    [/background[:\s]+([#][0-9a-fA-F]{3,8})/i, '--bg'],
+    [/coral[:\s]+([#][0-9a-fA-F]{3,8})/i, '--coral'],
+    [/primary[:\s]+([#][0-9a-fA-F]{3,8})/i, '--teal'],
+  ];
+  colorPairs.forEach(([re, vn]) => {
+    const m = txt.match(re);
+    if (m) vars[vn] = m[1];
+  });
+  const fontPairs: [RegExp, string][] = [
+    [/(?:display|heading)[\s-]*font[:\s]+['"]?([^'",\n]+)/i, '--fn'],
+    [/mono[\s-]*font[:\s]+['"]?([^'",\n]+)/i, '--fm'],
+  ];
+  fontPairs.forEach(([re, vn]) => {
+    const m = txt.match(re);
+    if (m) vars[vn] = `'${m[1].trim()}',sans-serif`;
+  });
+  Object.entries(vars).forEach(([k, v]) => document.documentElement.style.setProperty(k, v));
+  return Object.keys(vars).length;
+}
+
 // ── Settings Page ─────────────────────────────────────────────────────────────
 export default function SettingsPage() {
   const [selected, setSelected] = useState<ChimeType>(getSelectedChime());
   const [previewing, setPreviewing] = useState<ChimeType | null>(null);
   const [saved, setSaved] = useState(false);
+  const [brandModal, setBrandModal] = useState(false);
+  const [brandText, setBrandText] = useState('');
+  const [brandApplied, setBrandApplied] = useState(false);
 
   useEffect(() => {
     setSelected(getSelectedChime());
@@ -200,6 +230,73 @@ export default function SettingsPage() {
           Your preference is saved locally and applied whenever you run a live session.
         </p>
       </div>
+
+      {/* Brand Import */}
+      <div className="bg-srf border-[1.5px] border-bdr rounded-card shadow-card p-6">
+        <h2 className="font-extrabold text-navy text-sm mb-1">Import Brand Style</h2>
+        <p className="text-[11px] text-muted mb-4 leading-relaxed">
+          Apply your organisation's brand colours and fonts to the meeting agenda interface.
+        </p>
+        <button
+          onClick={() => setBrandModal(true)}
+          className="px-4 py-2 rounded-full font-extrabold text-[11px] uppercase tracking-wider text-navy border-[1.5px] border-bdr hover:border-teal hover:text-teal-dk transition-all"
+        >
+          Import Brand Style
+        </button>
+        {brandApplied && (
+          <span className="ml-3 text-[10px] font-extrabold text-teal-dk animate-fade-in">
+            ✓ Brand applied
+          </span>
+        )}
+      </div>
+
+      {/* Brand Modal */}
+      {brandModal && (
+        <div className="fixed inset-0 bg-[rgba(13,31,60,0.4)] backdrop-blur-sm z-[200] flex items-center justify-center" onClick={() => setBrandModal(false)}>
+          <div className="bg-srf border-[1.5px] border-bdr rounded-[20px] p-6 max-w-lg w-[92%] shadow-card-lg relative" onClick={e => e.stopPropagation()}>
+            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-teal-dk to-teal-br rounded-t-[20px]" />
+            <h2 className="text-lg font-black text-navy mb-2">Import Brand Style</h2>
+            <p className="text-slate text-[12px] mb-3 leading-relaxed">
+              Paste brand colours (hex), font names. Example format:
+            </p>
+            <div className="text-[10px] text-muted bg-srf-alt border border-bdr rounded-sm px-3 py-2 mb-3 font-mono leading-relaxed">
+              Primary: #08B3C3<br />
+              Navy: #0D1F3C<br />
+              Accent: #2BBCC8<br />
+              Display font: Nunito<br />
+              Mono font: DM Mono
+            </div>
+            <textarea
+              value={brandText}
+              onChange={e => setBrandText(e.target.value)}
+              placeholder="Primary: #08B3C3, Navy: #0D1F3C..."
+              rows={5}
+              className="w-full font-mono text-[11px] border-[1.5px] border-bdr rounded-sm px-3 py-2 bg-bg text-navy resize-vertical focus:border-teal transition-colors"
+            />
+            <div className="flex gap-2 mt-4 justify-end">
+              <button
+                onClick={() => setBrandModal(false)}
+                className="px-4 py-2 rounded-full font-extrabold text-[11px] uppercase tracking-wider text-muted border-[1.5px] border-bdr hover:border-teal hover:text-teal-dk transition-all"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  const count = applyBrand(brandText);
+                  setBrandModal(false);
+                  if (count > 0) {
+                    setBrandApplied(true);
+                    setTimeout(() => setBrandApplied(false), 3000);
+                  }
+                }}
+                className="px-4 py-2 rounded-full font-extrabold text-[11px] uppercase tracking-wider text-white bg-gradient-to-r from-teal-dk to-teal-br shadow-teal hover:-translate-y-0.5 transition-all"
+              >
+                Apply
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
