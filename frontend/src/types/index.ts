@@ -86,6 +86,7 @@ export interface Meeting {
   id: string;
   user_id: string;
   template_id: string | null;
+  organisation: string;
   title: string;
   subtitle: string;
   date: string;

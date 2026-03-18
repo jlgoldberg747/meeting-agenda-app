@@ -33,6 +33,7 @@ export default function NewMeetingPage() {
     enabled: Boolean(templateId),
   });
 
+  const [organisation, setOrganisation] = useState('');
   const [title, setTitle] = useState('');
   const [subtitle, setSubtitle] = useState('');
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
@@ -49,6 +50,7 @@ export default function NewMeetingPage() {
 
   useEffect(() => {
     if (existingMeeting) {
+      setOrganisation(existingMeeting.organisation || '');
       setTitle(existingMeeting.title);
       setSubtitle(existingMeeting.subtitle || '');
       setDate(existingMeeting.date);
@@ -100,6 +102,7 @@ export default function NewMeetingPage() {
     setError('');
     const participants = participantsStr.split(',').map(p => p.trim()).filter(Boolean);
     saveMutation.mutate({
+      organisation: organisation.trim(),
       title: title.trim(),
       subtitle: subtitle.trim(),
       date,
@@ -161,7 +164,12 @@ export default function NewMeetingPage() {
       <div className="bg-srf border-[1.5px] border-bdr rounded-card shadow-card p-5">
         <h2 className="font-extrabold text-navy text-sm mb-4">Meeting Details</h2>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <div className="sm:col-span-2">
+          <div>
+            <label className="block text-[9px] font-extrabold uppercase tracking-widest text-muted mb-1">Organisation</label>
+            <input value={organisation} onChange={e => setOrganisation(e.target.value)} placeholder="e.g. Carmel Evangelical Trust"
+              className="w-full border-[1.5px] border-bdr rounded-sm px-3 py-2 text-sm text-navy bg-srf focus:border-teal transition-colors" />
+          </div>
+          <div>
             <label className="block text-[9px] font-extrabold uppercase tracking-widest text-muted mb-1">Title *</label>
             <input value={title} onChange={e => setTitle(e.target.value)} placeholder="e.g. Q1 Trustees Meeting"
               className="w-full border-[1.5px] border-bdr rounded-sm px-3 py-2 text-sm text-navy bg-srf focus:border-teal transition-colors" />
