@@ -8,9 +8,9 @@ function StatCard({ label, value, sub, color }: { label: string; value: string |
   return (
     <div className="bg-srf border-[1.5px] border-bdr rounded-card shadow-card p-5 relative overflow-hidden">
       <div className="absolute top-0 left-0 right-0 h-[3px]" style={{ background: color || 'var(--teal-br)' }} />
-      <div className="text-[8px] font-extrabold uppercase tracking-widest text-muted mb-1">{label}</div>
+      <div className="text-[10px] font-extrabold uppercase tracking-widest text-muted mb-1">{label}</div>
       <div className="text-3xl font-black text-navy font-mono">{value}</div>
-      {sub && <div className="text-[10px] text-muted mt-0.5">{sub}</div>}
+      {sub && <div className="text-xs text-muted mt-0.5">{sub}</div>}
     </div>
   );
 }
@@ -29,16 +29,16 @@ function MeetingRow({ meeting }: { meeting: Meeting }) {
     >
       <div className="flex items-center gap-3 min-w-0">
         <div className="text-center min-w-[48px]">
-          <div className="font-mono text-[9px] text-muted font-bold">{dateStr}</div>
-          <div className="font-mono text-[9px] text-muted">{meeting.start_time}</div>
+          <div className="font-mono text-[11px] text-muted font-bold">{dateStr}</div>
+          <div className="font-mono text-[11px] text-muted">{meeting.start_time}</div>
         </div>
         <div className="min-w-0">
           <div className="font-extrabold text-navy text-[13px] truncate">{meeting.title}</div>
-          {meeting.location && <div className="text-[10px] text-muted">{meeting.location}</div>}
+          {meeting.location && <div className="text-xs text-muted">{meeting.location}</div>}
         </div>
       </div>
       <div className="flex items-center gap-2 flex-shrink-0 ml-2">
-        <span className={`text-[9px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full ${hasAgenda ? 'bg-[rgba(43,188,200,0.1)] text-teal-dk' : 'bg-srf-alt text-muted'}`}>
+        <span className={`text-[11px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full ${hasAgenda ? 'bg-[rgba(43,188,200,0.1)] text-teal-dk' : 'bg-srf-alt text-muted'}`}>
           {hasAgenda ? `${meeting.items.length} items · ${totalMins}m` : 'No agenda'}
         </span>
         <svg className="w-4 h-4 text-muted group-hover:text-teal-dk transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -70,13 +70,13 @@ export default function DashboardPage() {
         <div className="flex gap-2 mt-4 flex-wrap">
           <Link
             to="/meetings/new"
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full font-extrabold text-[11px] uppercase tracking-wider text-white bg-gradient-to-r from-teal-dk to-teal-br shadow-teal hover:-translate-y-0.5 transition-all"
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full font-extrabold text-xs uppercase tracking-wider text-white bg-gradient-to-r from-teal-dk to-teal-br shadow-teal hover:-translate-y-0.5 transition-all"
           >
             <span>+</span> New Meeting
           </Link>
           <Link
             to="/templates/new"
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full font-extrabold text-[11px] uppercase tracking-wider text-navy border-[1.5px] border-bdr hover:border-teal hover:text-teal-dk transition-all"
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full font-extrabold text-xs uppercase tracking-wider text-navy border-[1.5px] border-bdr hover:border-teal hover:text-teal-dk transition-all"
           >
             <span>+</span> New Template
           </Link>
@@ -106,7 +106,7 @@ export default function DashboardPage() {
       <div className="bg-srf border-[1.5px] border-bdr rounded-card shadow-card overflow-hidden">
         <div className="flex items-center justify-between px-5 py-3 border-b border-bdr">
           <h2 className="font-extrabold text-navy text-sm">Upcoming Meetings</h2>
-          <Link to="/meetings" className="text-[10px] text-teal-dk font-bold hover:underline">
+          <Link to="/meetings" className="text-xs text-teal-dk font-bold hover:underline">
             View all →
           </Link>
         </div>
@@ -114,7 +114,7 @@ export default function DashboardPage() {
           <div className="py-10 text-center">
             <div className="text-3xl opacity-20 mb-2">📅</div>
             <p className="text-muted text-sm">No upcoming meetings</p>
-            <Link to="/meetings/new" className="text-teal-dk text-[11px] font-bold mt-1 inline-block hover:underline">
+            <Link to="/meetings/new" className="text-teal-dk text-xs font-bold mt-1 inline-block hover:underline">
               Schedule one →
             </Link>
           </div>
@@ -130,7 +130,7 @@ export default function DashboardPage() {
         <div className="bg-srf border-[1.5px] border-bdr rounded-card shadow-card overflow-hidden">
           <div className="flex items-center justify-between px-5 py-3 border-b border-bdr">
             <h2 className="font-extrabold text-navy text-sm">Recent Completed</h2>
-            <Link to="/meetings?tab=archive" className="text-[10px] text-teal-dk font-bold hover:underline">
+            <Link to="/meetings?tab=archive" className="text-xs text-teal-dk font-bold hover:underline">
               Archive →
             </Link>
           </div>

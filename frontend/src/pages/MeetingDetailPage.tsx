@@ -85,35 +85,35 @@ function SummaryView({
                 style={{ gridTemplateColumns: '80px minmax(80px,0.6fr) minmax(100px,1.2fr) auto' }}
                 onClick={() => setExpandedId(exp ? null : item.id)}
               >
-                <div className="font-mono text-[10px] text-muted leading-tight">
+                <div className="font-mono text-xs text-muted leading-tight">
                   <div>{item.sched_start} – {item.sched_end}</div>
-                  <div className="text-[9px]">{item.duration_minutes}m</div>
+                  <div className="text-[11px]">{item.duration_minutes}m</div>
                 </div>
-                <div className="font-extrabold text-navy text-[13px] truncate">
+                <div className="font-extrabold text-navy text-sm truncate">
                   {item.is_break ? '☕ ' : ''}{item.title}
                 </div>
-                <div className="text-[12px] text-slate line-clamp-2">
+                <div className="text-xs text-slate line-clamp-2">
                   {(item.objective || '').replace(/\n/g, ' · ')}
                 </div>
                 <div className="flex items-center gap-2 flex-shrink-0" onClick={e => e.stopPropagation()}>
                   {!isDone && !isActive && !activeId && (
                     <button
                       onClick={() => onStartSession(item.id)}
-                      className="px-3 py-1 rounded-full font-extrabold text-[9px] uppercase tracking-wider bg-[rgba(43,188,200,0.1)] text-teal-dk border-[1.5px] border-[rgba(43,188,200,0.3)] hover:bg-teal hover:text-white transition-all"
+                      className="px-3 py-1 rounded-full font-extrabold text-[11px] uppercase tracking-wider bg-[rgba(43,188,200,0.1)] text-teal-dk border-[1.5px] border-[rgba(43,188,200,0.3)] hover:bg-teal hover:text-white transition-all"
                     >
                       Start
                     </button>
                   )}
                   {isActive && (
-                    <span className="text-[8px] font-extrabold text-teal-dk animate-pulse">▶ ACTIVE</span>
+                    <span className="text-[10px] font-extrabold text-teal-dk animate-pulse">▶ ACTIVE</span>
                   )}
                   {isDone && (
-                    <span className="text-[8px] font-extrabold px-2 py-0.5 rounded-full bg-[rgba(34,197,94,0.1)] text-success">✓</span>
+                    <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-[rgba(34,197,94,0.1)] text-success">✓</span>
                   )}
                 </div>
               </div>
               {item.approach && exp && (
-                <div className="border-t border-bdr px-3 py-2 text-[11px] text-slate" style={{ paddingLeft: '104px' }}>
+                <div className="border-t border-bdr px-3 py-2 text-xs text-slate" style={{ paddingLeft: '104px' }}>
                   <strong>Approach:</strong> {item.approach.split('\n').map((line, i) => (
                     <span key={i}>{i > 0 && <br />}{line}</span>
                   ))}
@@ -132,17 +132,17 @@ function DetailView({ scheduled }: { scheduled: ScheduledItem[] }) {
   return (
     <div className="bg-srf border-[1.5px] border-bdr rounded-card shadow-card overflow-hidden">
       <div className="overflow-x-auto">
-        <table className="w-full border-collapse text-[11px]" style={{ minWidth: '700px' }}>
+        <table className="w-full border-collapse text-xs" style={{ minWidth: '700px' }}>
           <thead>
             <tr className="bg-srf-alt">
-              <th className="text-left text-[8px] font-extrabold uppercase tracking-widest text-muted px-2 py-2 border-b-[1.5px] border-bdr w-1"></th>
-              <th className="text-left text-[8px] font-extrabold uppercase tracking-widest text-muted px-2 py-2 border-b-[1.5px] border-bdr">Start</th>
-              <th className="text-left text-[8px] font-extrabold uppercase tracking-widest text-muted px-2 py-2 border-b-[1.5px] border-bdr">End</th>
-              <th className="text-center text-[8px] font-extrabold uppercase tracking-widest text-muted px-2 py-2 border-b-[1.5px] border-bdr">Dur</th>
-              <th className="text-left text-[8px] font-extrabold uppercase tracking-widest text-muted px-2 py-2 border-b-[1.5px] border-bdr">Session</th>
-              <th className="text-left text-[8px] font-extrabold uppercase tracking-widest text-muted px-2 py-2 border-b-[1.5px] border-bdr">Objective</th>
-              <th className="text-left text-[8px] font-extrabold uppercase tracking-widest text-muted px-2 py-2 border-b-[1.5px] border-bdr">Theme</th>
-              <th className="text-left text-[8px] font-extrabold uppercase tracking-widest text-muted px-2 py-2 border-b-[1.5px] border-bdr">Approach</th>
+              <th className="text-left text-[10px] font-extrabold uppercase tracking-widest text-muted px-2 py-2 border-b-[1.5px] border-bdr w-1"></th>
+              <th className="text-left text-[10px] font-extrabold uppercase tracking-widest text-muted px-2 py-2 border-b-[1.5px] border-bdr">Start</th>
+              <th className="text-left text-[10px] font-extrabold uppercase tracking-widest text-muted px-2 py-2 border-b-[1.5px] border-bdr">End</th>
+              <th className="text-center text-[10px] font-extrabold uppercase tracking-widest text-muted px-2 py-2 border-b-[1.5px] border-bdr">Dur</th>
+              <th className="text-left text-[10px] font-extrabold uppercase tracking-widest text-muted px-2 py-2 border-b-[1.5px] border-bdr">Session</th>
+              <th className="text-left text-[10px] font-extrabold uppercase tracking-widest text-muted px-2 py-2 border-b-[1.5px] border-bdr">Objective</th>
+              <th className="text-left text-[10px] font-extrabold uppercase tracking-widest text-muted px-2 py-2 border-b-[1.5px] border-bdr">Theme</th>
+              <th className="text-left text-[10px] font-extrabold uppercase tracking-widest text-muted px-2 py-2 border-b-[1.5px] border-bdr">Approach</th>
             </tr>
           </thead>
           <tbody>
@@ -152,19 +152,19 @@ function DetailView({ scheduled }: { scheduled: ScheduledItem[] }) {
                 <tr key={item.id} className={`border-b border-srf-alt hover:bg-[var(--teal-glow)] ${item.is_break ? 'opacity-40 italic' : ''}`}
                   style={{ borderLeft: `8px solid ${fmt.cl}` }}>
                   <td></td>
-                  <td className="px-2 py-1.5 font-mono text-[9px] text-muted whitespace-nowrap">{item.sched_start}</td>
-                  <td className="px-2 py-1.5 font-mono text-[9px] text-muted whitespace-nowrap">{item.sched_end}</td>
-                  <td className="px-2 py-1.5 font-mono text-[9px] text-muted text-center">{item.duration_minutes}m</td>
-                  <td className="px-2 py-1.5 font-extrabold text-navy text-[11px]">{item.is_break ? '☕ ' : ''}{item.title}</td>
-                  <td className="px-2 py-1.5 text-slate text-[10px] leading-snug">
+                  <td className="px-2 py-1.5 font-mono text-[11px] text-muted whitespace-nowrap">{item.sched_start}</td>
+                  <td className="px-2 py-1.5 font-mono text-[11px] text-muted whitespace-nowrap">{item.sched_end}</td>
+                  <td className="px-2 py-1.5 font-mono text-[11px] text-muted text-center">{item.duration_minutes}m</td>
+                  <td className="px-2 py-1.5 font-extrabold text-navy text-xs">{item.is_break ? '☕ ' : ''}{item.title}</td>
+                  <td className="px-2 py-1.5 text-slate text-[11px] leading-snug">
                     {(item.objective || '').split('\n').map((line, i) => (
                       <span key={i}>{i > 0 && <br />}{line}</span>
                     ))}
                   </td>
-                  <td className="px-2 py-1.5 font-mono text-[8px] font-medium uppercase tracking-wider text-teal-dk">
+                  <td className="px-2 py-1.5 font-mono text-[10px] font-medium uppercase tracking-wider text-teal-dk">
                     {item.illustration || ''}
                   </td>
-                  <td className="px-2 py-1.5 text-muted text-[9px] leading-snug">
+                  <td className="px-2 py-1.5 text-muted text-[11px] leading-snug">
                     {(item.approach || '').split('\n').map((line, i) => (
                       <span key={i}>{i > 0 && <br />}{line}</span>
                     ))}
@@ -230,12 +230,12 @@ function TrackItemRow({
     const actualDur = Math.round((tr.endedAt.getTime() - tr.startedAt.getTime()) / 60000);
     const di = sitem.duration_minutes - actualDur;
     driftEl = di > 0
-      ? <span className="font-mono text-[10px] font-bold text-teal-dk">+{di}m</span>
+      ? <span className="font-mono text-xs font-bold text-teal-dk">+{di}m</span>
       : di < 0
-        ? <span className="font-mono text-[10px] font-bold text-coral">{di}m</span>
-        : <span className="font-mono text-[10px] font-bold text-amber">—</span>;
+        ? <span className="font-mono text-xs font-bold text-coral">{di}m</span>
+        : <span className="font-mono text-xs font-bold text-amber">—</span>;
   } else if (projected) {
-    driftEl = <span className="font-mono text-[9px] text-muted">≈ {projected.pS}</span>;
+    driftEl = <span className="font-mono text-[11px] text-muted">≈ {projected.pS}</span>;
   }
 
   // Controls
@@ -244,20 +244,20 @@ function TrackItemRow({
     controls = (
       <div className="flex items-center gap-1">
         <input
-          className="font-mono text-[10px] w-11 text-center border-[1.5px] border-bdr rounded-md px-1 py-0.5 bg-srf-alt text-navy focus:border-teal"
+          className="font-mono text-xs w-11 text-center border-[1.5px] border-bdr rounded-md px-1 py-0.5 bg-srf-alt text-navy focus:border-teal"
           placeholder="HH:MM"
           value={manualStart}
           onChange={e => setManualStart(e.target.value)}
         />
         <input
-          className="font-mono text-[10px] w-11 text-center border-[1.5px] border-bdr rounded-md px-1 py-0.5 bg-srf-alt text-navy focus:border-teal"
+          className="font-mono text-xs w-11 text-center border-[1.5px] border-bdr rounded-md px-1 py-0.5 bg-srf-alt text-navy focus:border-teal"
           placeholder="HH:MM"
           value={manualEnd}
           onChange={e => setManualEnd(e.target.value)}
         />
         <button
           onClick={() => onManualSave(manualStart, manualEnd)}
-          className="px-2 py-0.5 rounded-full text-[8px] font-extrabold bg-[rgba(43,188,200,0.1)] text-teal-dk border-[1.5px] border-[rgba(43,188,200,0.3)]"
+          className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-[rgba(43,188,200,0.1)] text-teal-dk border-[1.5px] border-[rgba(43,188,200,0.3)]"
         >✓</button>
       </div>
     );
@@ -267,10 +267,10 @@ function TrackItemRow({
     const eT = m2t(tr.endedAt.getHours() * 60 + tr.endedAt.getMinutes());
     controls = (
       <div className="flex items-center gap-1">
-        <span className="text-[8px] font-extrabold px-2 py-0.5 rounded-full bg-[rgba(43,188,200,0.08)] text-teal-dk border-[1.5px] border-[rgba(43,188,200,0.3)]">
+        <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-[rgba(43,188,200,0.08)] text-teal-dk border-[1.5px] border-[rgba(43,188,200,0.3)]">
           {sT}–{eT} ({actualDur}m)
         </span>
-        <button onClick={onManual} className="text-muted text-[11px] opacity-35 hover:opacity-100 hover:text-teal-dk transition-all">✎</button>
+        <button onClick={onManual} className="text-muted text-xs opacity-35 hover:opacity-100 hover:text-teal-dk transition-all">✎</button>
       </div>
     );
   } else if (isActive) {
@@ -279,11 +279,11 @@ function TrackItemRow({
         <TimerDisplay seconds={remainSecs} overtime={overtime} />
         <button
           onClick={onEnd}
-          className="px-3 py-1 rounded-full font-extrabold text-[9px] uppercase tracking-wider bg-coral text-white pulse-btn border border-coral"
+          className="px-3 py-1 rounded-full font-extrabold text-[11px] uppercase tracking-wider bg-coral text-white pulse-btn border border-coral"
         >
           End
         </button>
-        <button onClick={onManual} className="text-muted text-[11px] opacity-35 hover:opacity-100 hover:text-teal-dk transition-all">✎</button>
+        <button onClick={onManual} className="text-muted text-xs opacity-35 hover:opacity-100 hover:text-teal-dk transition-all">✎</button>
       </div>
     );
   } else {
@@ -291,7 +291,7 @@ function TrackItemRow({
       <div className="flex items-center gap-1">
         <button
           onClick={onStart}
-          className="px-3 py-1 rounded-full font-extrabold text-[9px] uppercase tracking-wider bg-[rgba(43,188,200,0.1)] text-teal-dk border-[1.5px] border-[rgba(43,188,200,0.3)] hover:bg-teal hover:text-white transition-all"
+          className="px-3 py-1 rounded-full font-extrabold text-[11px] uppercase tracking-wider bg-[rgba(43,188,200,0.1)] text-teal-dk border-[1.5px] border-[rgba(43,188,200,0.3)] hover:bg-teal hover:text-white transition-all"
         >
           Start
         </button>
@@ -321,13 +321,13 @@ function TrackItemRow({
           style={{ gridTemplateColumns: '80px minmax(60px,0.35fr) 1fr auto' }}
           onClick={() => setExpanded(e => !e)}
         >
-          <div className="font-mono text-[9px] text-muted leading-tight flex items-baseline gap-1.5 flex-wrap">
-            {sitem.sched_start} – {sitem.sched_end} <span className="text-[8px]">{sitem.duration_minutes}m</span>
+          <div className="font-mono text-[11px] text-muted leading-tight flex items-baseline gap-1.5 flex-wrap">
+            {sitem.sched_start} – {sitem.sched_end} <span className="text-[10px]">{sitem.duration_minutes}m</span>
           </div>
-          <div className="font-extrabold text-navy text-[13px] truncate">
+          <div className="font-extrabold text-navy text-sm truncate">
             {sitem.is_break ? '☕ ' : ''}{sitem.title}
           </div>
-          <div className="text-[10px] text-muted truncate">
+          <div className="text-xs text-muted truncate">
             {(sitem.objective || '').split('\n')[0]}
           </div>
           <div className="flex items-center gap-2 flex-shrink-0" onClick={e => e.stopPropagation()}>
@@ -336,7 +336,7 @@ function TrackItemRow({
           </div>
         </div>
         {expanded && sitem.approach && (
-          <div className="border-t border-bdr px-3 py-2 text-[11px] text-slate" style={{ paddingLeft: '104px' }}>
+          <div className="border-t border-bdr px-3 py-2 text-xs text-slate" style={{ paddingLeft: '104px' }}>
             <strong>Approach:</strong> {sitem.approach.split('\n').map((line, i) => (
               <span key={i}>{i > 0 && <br />}{line}</span>
             ))}
@@ -425,7 +425,7 @@ function TrackView({
             { label: 'Progress', value: `${scheduled.filter(s => tracking[s.id]?.endedAt || s.status === 'done').length}/${scheduled.length}`, cls: 'text-navy' },
           ].map(({ label, value, cls }) => (
             <div key={label} className="text-center">
-              <div className="text-[8px] font-extrabold uppercase tracking-widest text-muted">{label}</div>
+              <div className="text-[10px] font-extrabold uppercase tracking-widest text-muted">{label}</div>
               <div className={`font-mono font-bold text-[17px] ${cls}`}>{value}</div>
             </div>
           ))}
@@ -463,7 +463,7 @@ function TrackView({
       <div className="mt-5 text-center">
         <button
           onClick={onResetTracking}
-          className="px-4 py-2 rounded-full font-extrabold text-[10px] uppercase tracking-wider text-coral border-[1.5px] border-coral hover:bg-[rgba(239,68,68,0.06)] transition-all"
+          className="px-4 py-2 rounded-full font-extrabold text-xs uppercase tracking-wider text-coral border-[1.5px] border-coral hover:bg-[rgba(239,68,68,0.06)] transition-all"
         >
           Reset Tracking
         </button>
@@ -520,40 +520,40 @@ function EditView({
     <div className="space-y-4">
       {/* Meeting details form */}
       <div className="bg-srf border-[1.5px] border-bdr rounded-card shadow-card p-5">
-        <div className="text-[13px] font-black mb-3">Meeting Details</div>
+        <div className="text-sm font-black mb-3">Meeting Details</div>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           <div className="flex flex-col gap-1">
-            <label className="text-[9px] font-extrabold uppercase tracking-widest text-muted">Organisation</label>
+            <label className="text-[11px] font-extrabold uppercase tracking-widest text-muted">Organisation</label>
             <input value={organisation} onChange={e => setOrganisation(e.target.value)}
               className="border-[1.5px] border-bdr rounded-sm px-3 py-2 text-sm text-navy bg-srf focus:border-teal transition-colors" />
           </div>
           <div className="flex flex-col gap-1">
-            <label className="text-[9px] font-extrabold uppercase tracking-widest text-muted">Title</label>
+            <label className="text-[11px] font-extrabold uppercase tracking-widest text-muted">Title</label>
             <input value={title} onChange={e => setTitle(e.target.value)}
               className="border-[1.5px] border-bdr rounded-sm px-3 py-2 text-sm text-navy bg-srf focus:border-teal transition-colors" />
           </div>
           <div className="flex flex-col gap-1">
-            <label className="text-[9px] font-extrabold uppercase tracking-widest text-muted">Subtitle</label>
+            <label className="text-[11px] font-extrabold uppercase tracking-widest text-muted">Subtitle</label>
             <input value={subtitle} onChange={e => setSubtitle(e.target.value)}
               className="border-[1.5px] border-bdr rounded-sm px-3 py-2 text-sm text-navy bg-srf focus:border-teal transition-colors" />
           </div>
           <div className="flex flex-col gap-1">
-            <label className="text-[9px] font-extrabold uppercase tracking-widest text-muted">Date</label>
+            <label className="text-[11px] font-extrabold uppercase tracking-widest text-muted">Date</label>
             <input type="date" value={date} onChange={e => setDate(e.target.value)}
               className="border-[1.5px] border-bdr rounded-sm px-3 py-2 text-sm text-navy bg-srf focus:border-teal transition-colors" />
           </div>
           <div className="flex flex-col gap-1">
-            <label className="text-[9px] font-extrabold uppercase tracking-widest text-muted">Start Time</label>
+            <label className="text-[11px] font-extrabold uppercase tracking-widest text-muted">Start Time</label>
             <input type="time" value={startTime} onChange={e => setStartTime(e.target.value)}
               className="border-[1.5px] border-bdr rounded-sm px-3 py-2 text-sm font-mono text-navy bg-srf focus:border-teal transition-colors" />
           </div>
           <div className="flex flex-col gap-1">
-            <label className="text-[9px] font-extrabold uppercase tracking-widest text-muted">Location</label>
+            <label className="text-[11px] font-extrabold uppercase tracking-widest text-muted">Location</label>
             <input value={location} onChange={e => setLocation(e.target.value)}
               className="border-[1.5px] border-bdr rounded-sm px-3 py-2 text-sm text-navy bg-srf focus:border-teal transition-colors" />
           </div>
           <div className="flex flex-col gap-1">
-            <label className="text-[9px] font-extrabold uppercase tracking-widest text-muted">Facilitator</label>
+            <label className="text-[11px] font-extrabold uppercase tracking-widest text-muted">Facilitator</label>
             <input value={facilitator} onChange={e => setFacilitator(e.target.value)}
               className="border-[1.5px] border-bdr rounded-sm px-3 py-2 text-sm text-navy bg-srf focus:border-teal transition-colors" />
           </div>
@@ -562,7 +562,7 @@ function EditView({
 
       {/* Agenda editor */}
       <div className="bg-srf border-[1.5px] border-bdr rounded-card shadow-card p-5">
-        <div className="text-[13px] font-black mb-3">Agenda Sessions</div>
+        <div className="text-sm font-black mb-3">Agenda Sessions</div>
         <AgendaEditor items={items} startTime={startTime} onChange={setItems} />
       </div>
 
@@ -570,7 +570,7 @@ function EditView({
       <div className="text-right">
         <button
           onClick={handleSave}
-          className="px-5 py-2 rounded-full font-extrabold text-[11px] uppercase tracking-wider text-white bg-gradient-to-r from-teal-dk to-teal-br shadow-teal hover:-translate-y-0.5 transition-all"
+          className="px-5 py-2 rounded-full font-extrabold text-xs uppercase tracking-wider text-white bg-gradient-to-r from-teal-dk to-teal-br shadow-teal hover:-translate-y-0.5 transition-all"
         >
           Save Changes
         </button>
@@ -821,7 +821,7 @@ export default function MeetingDetailPage() {
           {!locked && (
             <button
               onClick={() => setViewTab('edit')}
-              className={`px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider border-[1.5px] transition-all ${
+              className={`px-3 py-1 rounded-full text-xs font-extrabold uppercase tracking-wider border-[1.5px] transition-all ${
                 viewTab === 'edit'
                   ? 'text-teal-dk bg-[rgba(43,188,200,0.08)] border-[rgba(43,188,200,0.3)]'
                   : 'text-muted border-transparent hover:text-slate hover:bg-srf-alt'
@@ -832,7 +832,7 @@ export default function MeetingDetailPage() {
           )}
           <button
             onClick={() => setViewTab('summary')}
-            className={`px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider border-[1.5px] transition-all ${
+            className={`px-3 py-1 rounded-full text-xs font-extrabold uppercase tracking-wider border-[1.5px] transition-all ${
               viewTab === 'summary'
                 ? 'text-teal-dk bg-[rgba(43,188,200,0.08)] border-[rgba(43,188,200,0.3)]'
                 : 'text-muted border-transparent hover:text-slate hover:bg-srf-alt'
@@ -842,7 +842,7 @@ export default function MeetingDetailPage() {
           </button>
           <button
             onClick={() => setViewTab('detail')}
-            className={`px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider border-[1.5px] transition-all ${
+            className={`px-3 py-1 rounded-full text-xs font-extrabold uppercase tracking-wider border-[1.5px] transition-all ${
               viewTab === 'detail'
                 ? 'text-teal-dk bg-[rgba(43,188,200,0.08)] border-[rgba(43,188,200,0.3)]'
                 : 'text-muted border-transparent hover:text-slate hover:bg-srf-alt'
@@ -852,7 +852,7 @@ export default function MeetingDetailPage() {
           </button>
           <button
             onClick={() => setViewTab('track')}
-            className={`px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider border-[1.5px] transition-all ${
+            className={`px-3 py-1 rounded-full text-xs font-extrabold uppercase tracking-wider border-[1.5px] transition-all ${
               viewTab === 'track'
                 ? 'text-teal-dk bg-[rgba(43,188,200,0.08)] border-[rgba(43,188,200,0.3)]'
                 : 'text-muted border-transparent hover:text-slate hover:bg-srf-alt'
@@ -865,7 +865,7 @@ export default function MeetingDetailPage() {
         <div className="flex items-center gap-2">
           {/* Drift pill */}
           {viewTab === 'track' && hasTracking && (
-            <span className={`flex items-center gap-1 text-[9px] font-extrabold px-2 py-0.5 rounded-full border-[1.5px] ${
+            <span className={`flex items-center gap-1 text-[11px] font-extrabold px-2 py-0.5 rounded-full border-[1.5px] ${
               drift >= 0
                 ? 'text-teal-dk bg-[rgba(43,188,200,0.08)] border-[rgba(43,188,200,0.3)]'
                 : 'text-coral bg-[rgba(239,68,68,0.08)] border-coral'
@@ -885,7 +885,7 @@ export default function MeetingDetailPage() {
           {/* Chime toggle */}
           <button
             onClick={() => setChimesOn(c => !c)}
-            className={`text-[9px] font-extrabold px-2 py-1 rounded-full border-[1.5px] transition-all ${
+            className={`text-[11px] font-extrabold px-2 py-1 rounded-full border-[1.5px] transition-all ${
               chimesOn ? 'text-amber border-amber bg-[rgba(224,156,20,0.1)]' : 'text-muted border-bdr'
             }`}
           >
@@ -899,7 +899,7 @@ export default function MeetingDetailPage() {
               setLocked(next);
               if (next && viewTab === 'edit') setViewTab('summary');
             }}
-            className={`text-[9px] font-extrabold px-2.5 py-1 rounded-full border-[1.5px] transition-all ${
+            className={`text-[11px] font-extrabold px-2.5 py-1 rounded-full border-[1.5px] transition-all ${
               locked
                 ? 'text-coral border-coral'
                 : 'text-muted border-bdr hover:border-teal hover:text-teal-dk'
@@ -919,8 +919,8 @@ export default function MeetingDetailPage() {
               : <span key={i}>{part}</span>
           )}
         </h1>
-        {meeting.subtitle && <p className="text-slate text-[12px] font-semibold mt-0.5">{meeting.subtitle}</p>}
-        <div className="flex flex-wrap gap-x-4 gap-y-1 text-[10px] text-muted mt-2">
+        {meeting.subtitle && <p className="text-slate text-sm font-semibold mt-0.5">{meeting.subtitle}</p>}
+        <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted mt-2">
           {meeting.organisation && <span className="font-bold text-navy">{meeting.organisation}</span>}
           <span className="font-bold text-slate">{dateStr}</span>
           <span>{meeting.start_time}{lastSched ? ` – ${lastSched.sched_end}` : ''}</span>
@@ -1001,7 +1001,7 @@ export default function MeetingDetailPage() {
         <div className="mt-3">
           <button
             onClick={() => setFmtExpanded(f => !f)}
-            className="text-[9px] font-extrabold px-3 py-1.5 rounded-full border-[1.5px] border-bdr text-muted hover:border-teal hover:text-teal-dk transition-all mb-3"
+            className="text-[11px] font-extrabold px-3 py-1.5 rounded-full border-[1.5px] border-bdr text-muted hover:border-teal hover:text-teal-dk transition-all mb-3"
           >
             {fmtExpanded ? '◂ Collapse formats' : '▸ Expand formats'}
           </button>
@@ -1011,7 +1011,7 @@ export default function MeetingDetailPage() {
       {meeting.items.length > 0 && (
         <div className="flex flex-wrap gap-0 bg-srf border-[1.5px] border-bdr rounded-sm shadow-card overflow-hidden mt-3">
           {FORMATS.map(f => (
-            <div key={f.c} className="flex items-center gap-1.5 text-[10px] font-bold text-slate px-3 py-2.5 border-r border-bdr last:border-r-0 flex-1 min-w-[140px]">
+            <div key={f.c} className="flex items-center gap-1.5 text-xs font-bold text-slate px-3 py-2.5 border-r border-bdr last:border-r-0 flex-1 min-w-[140px]">
               <div className="w-[18px] h-1 rounded-full flex-shrink-0" style={{ background: f.cl }} />
               <strong>{f.c}</strong> {f.l}
             </div>

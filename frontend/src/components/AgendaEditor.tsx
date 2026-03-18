@@ -53,7 +53,7 @@ function ItemModal({
         <div className="flex items-center justify-between px-6 pt-7 pb-4 border-b border-bdr flex-shrink-0">
           <div className="flex items-center gap-2">
             <span
-              className="text-[9px] font-extrabold uppercase tracking-widest px-2 py-0.5 rounded-full"
+              className="text-[11px] font-extrabold uppercase tracking-widest px-2 py-0.5 rounded-full"
               style={{ color: fmt.cl, background: `${fmt.cl}18` }}
             >
               {fmt.c}
@@ -71,7 +71,7 @@ function ItemModal({
           {/* Title + Duration row */}
           <div className="grid grid-cols-[1fr_100px] gap-4">
             <div>
-              <label className="block text-[9px] font-extrabold uppercase tracking-widest text-muted mb-1.5">
+              <label className="block text-[11px] font-extrabold uppercase tracking-widest text-muted mb-1.5">
                 Session Title
               </label>
               <input
@@ -83,7 +83,7 @@ function ItemModal({
               />
             </div>
             <div>
-              <label className="block text-[9px] font-extrabold uppercase tracking-widest text-muted mb-1.5">
+              <label className="block text-[11px] font-extrabold uppercase tracking-widest text-muted mb-1.5">
                 Duration (min)
               </label>
               <input
@@ -99,7 +99,7 @@ function ItemModal({
           {/* Format + Break row */}
           <div className="grid grid-cols-[1fr_auto] gap-4 items-end">
             <div>
-              <label className="block text-[9px] font-extrabold uppercase tracking-widest text-muted mb-1.5">
+              <label className="block text-[11px] font-extrabold uppercase tracking-widest text-muted mb-1.5">
                 Format
               </label>
               <select
@@ -172,13 +172,13 @@ function ItemModal({
         <div className="flex items-center justify-end gap-2 px-6 py-4 border-t border-bdr flex-shrink-0">
           <button
             onClick={onCancel}
-            className="px-4 py-2 rounded-full font-extrabold text-[11px] uppercase tracking-wider text-muted border-[1.5px] border-bdr hover:border-teal hover:text-teal-dk transition-all"
+            className="px-4 py-2 rounded-full font-extrabold text-xs uppercase tracking-wider text-muted border-[1.5px] border-bdr hover:border-teal hover:text-teal-dk transition-all"
           >
             Cancel
           </button>
           <button
             onClick={() => onSave(draft)}
-            className="px-5 py-2 rounded-full font-extrabold text-[11px] uppercase tracking-wider text-white bg-gradient-to-r from-teal-dk to-teal-br shadow-teal hover:-translate-y-0.5 transition-all"
+            className="px-5 py-2 rounded-full font-extrabold text-xs uppercase tracking-wider text-white bg-gradient-to-r from-teal-dk to-teal-br shadow-teal hover:-translate-y-0.5 transition-all"
           >
             Save Session
           </button>
@@ -291,12 +291,12 @@ export default function AgendaEditor({ items, startTime, onChange, readOnly }: P
         <table className="w-full border-collapse text-[11px]">
           <thead>
             <tr className="bg-srf-alt">
-              <th className="text-left text-[8px] font-extrabold uppercase tracking-widest text-muted px-2 py-2.5 border-b-[1.5px] border-bdr">Start</th>
-              <th className="text-left text-[8px] font-extrabold uppercase tracking-widest text-muted px-2 py-2.5 border-b-[1.5px] border-bdr">Dur</th>
-              <th className="text-left text-[8px] font-extrabold uppercase tracking-widest text-muted px-2 py-2.5 border-b-[1.5px] border-bdr">Format</th>
-              <th className="text-left text-[8px] font-extrabold uppercase tracking-widest text-muted px-2 py-2.5 border-b-[1.5px] border-bdr">Title</th>
-              <th className="text-left text-[8px] font-extrabold uppercase tracking-widest text-muted px-2 py-2.5 border-b-[1.5px] border-bdr">Objective</th>
-              <th className="text-left text-[8px] font-extrabold uppercase tracking-widest text-muted px-2 py-2.5 border-b-[1.5px] border-bdr">Approach</th>
+              <th className="text-left text-[10px] font-extrabold uppercase tracking-widest text-muted px-2 py-2.5 border-b-[1.5px] border-bdr">Start</th>
+              <th className="text-left text-[10px] font-extrabold uppercase tracking-widest text-muted px-2 py-2.5 border-b-[1.5px] border-bdr">Dur</th>
+              <th className="text-left text-[10px] font-extrabold uppercase tracking-widest text-muted px-2 py-2.5 border-b-[1.5px] border-bdr">Format</th>
+              <th className="text-left text-[10px] font-extrabold uppercase tracking-widest text-muted px-2 py-2.5 border-b-[1.5px] border-bdr">Title</th>
+              <th className="text-left text-[10px] font-extrabold uppercase tracking-widest text-muted px-2 py-2.5 border-b-[1.5px] border-bdr">Objective</th>
+              <th className="text-left text-[10px] font-extrabold uppercase tracking-widest text-muted px-2 py-2.5 border-b-[1.5px] border-bdr">Approach</th>
             </tr>
           </thead>
           <tbody>
@@ -306,14 +306,14 @@ export default function AgendaEditor({ items, startTime, onChange, readOnly }: P
               return (
                 <tr key={item.id} className={`border-b border-srf-alt hover:bg-[var(--teal-glow)] ${item.is_break ? 'opacity-50' : ''}`}
                   style={{ borderLeft: `4px solid ${fmt.cl}` }}>
-                  <td className="px-2 py-2 font-mono text-[9px] text-muted whitespace-nowrap">{start}</td>
-                  <td className="px-2 py-2 font-mono text-[9px] text-muted">{item.duration_minutes}m</td>
+                  <td className="px-2 py-2 font-mono text-[11px] text-muted whitespace-nowrap">{start}</td>
+                  <td className="px-2 py-2 font-mono text-[11px] text-muted">{item.duration_minutes}m</td>
                   <td className="px-2 py-2">
-                    <span className="text-[8px] font-extrabold uppercase tracking-wider" style={{ color: fmt.cl }}>{fmt.c}</span>
+                    <span className="text-[10px] font-extrabold uppercase tracking-wider" style={{ color: fmt.cl }}>{fmt.c}</span>
                   </td>
                   <td className="px-2 py-2 font-bold text-navy">{item.is_break ? '☕ ' : ''}{item.title}</td>
-                  <td className="px-2 py-2 text-slate text-[10px]">{item.objective}</td>
-                  <td className="px-2 py-2 text-muted text-[10px]">{item.approach}</td>
+                  <td className="px-2 py-2 text-slate text-xs">{item.objective}</td>
+                  <td className="px-2 py-2 text-muted text-xs">{item.approach}</td>
                 </tr>
               );
             })}
@@ -338,10 +338,10 @@ export default function AgendaEditor({ items, startTime, onChange, readOnly }: P
               : 'border-bdr text-muted hover:border-teal hover:text-teal-dk'
           }`}
         >
-          <div className="text-[10px] font-extrabold uppercase tracking-wider mb-0.5">
+          <div className="text-xs font-extrabold uppercase tracking-wider mb-0.5">
             {fileDragOver ? 'Drop file to import' : 'Import Agenda'}
           </div>
-          <div className="text-[9px]">
+          <div className="text-[11px]">
             Drag & drop an Excel (.xlsx), CSV, or JSON file here
             <label className="ml-1.5 text-teal-dk font-bold cursor-pointer hover:underline">
               or browse
@@ -355,7 +355,7 @@ export default function AgendaEditor({ items, startTime, onChange, readOnly }: P
           </div>
         </div>
         {importError && (
-          <div className="text-[10px] text-coral bg-[rgba(239,68,68,0.08)] border border-[rgba(239,68,68,0.2)] rounded-sm px-3 py-2 mb-3">
+          <div className="text-xs text-coral bg-[rgba(239,68,68,0.08)] border border-[rgba(239,68,68,0.2)] rounded-sm px-3 py-2 mb-3">
             {importError}
           </div>
         )}
@@ -389,37 +389,37 @@ export default function AgendaEditor({ items, startTime, onChange, readOnly }: P
                           >⠿</span>
 
                           {/* Time */}
-                          <span className="font-mono text-[9px] text-muted whitespace-nowrap flex-shrink-0 w-[90px]">
+                          <span className="font-mono text-[11px] text-muted whitespace-nowrap flex-shrink-0 w-[90px]">
                             {start} – {end}
                           </span>
 
                           {/* Duration badge */}
-                          <span className="font-mono font-bold text-[10px] text-teal-dk flex-shrink-0 w-8 text-right">
+                          <span className="font-mono font-bold text-xs text-teal-dk flex-shrink-0 w-8 text-right">
                             {item.duration_minutes}m
                           </span>
 
                           {/* Format badge */}
                           <span
-                            className="text-[8px] font-extrabold uppercase tracking-wider px-1.5 py-0.5 rounded-full flex-shrink-0"
+                            className="text-[10px] font-extrabold uppercase tracking-wider px-1.5 py-0.5 rounded-full flex-shrink-0"
                             style={{ color: fmt.cl, background: `${fmt.cl}18` }}
                           >
                             {fmt.c}
                           </span>
 
                           {/* Title */}
-                          <span className="flex-1 font-bold text-navy text-[12px] truncate min-w-0">
+                          <span className="flex-1 font-bold text-navy text-sm truncate min-w-0">
                             {item.is_break ? '☕ ' : ''}{item.title}
                           </span>
 
                           {/* Approach preview */}
                           {item.approach && (
-                            <span className="text-[10px] text-muted truncate flex-shrink hidden sm:block max-w-[180px]">
+                            <span className="text-xs text-muted truncate flex-shrink hidden sm:block max-w-[180px]">
                               {item.approach}
                             </span>
                           )}
 
                           {/* Edit hint */}
-                          <span className="text-[9px] text-teal-dk font-bold opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0 hidden sm:block">
+                          <span className="text-[11px] text-teal-dk font-bold opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0 hidden sm:block">
                             Edit →
                           </span>
 
@@ -450,7 +450,7 @@ export default function AgendaEditor({ items, startTime, onChange, readOnly }: P
         <div className="mt-2">
           <button
             onClick={() => addItem()}
-            className="w-full py-2.5 border-[1.5px] border-dashed border-bdr rounded-sm text-teal-dk font-extrabold text-[11px] hover:border-teal hover:bg-[var(--teal-glow)] transition-all"
+            className="w-full py-2.5 border-[1.5px] border-dashed border-bdr rounded-sm text-teal-dk font-extrabold text-xs hover:border-teal hover:bg-[var(--teal-glow)] transition-all"
           >
             + Add Session
           </button>
