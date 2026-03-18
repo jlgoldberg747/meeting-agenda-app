@@ -1,0 +1,155 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,300;0,400;0,600;0,700;0,800;0,900;1,700&family=DM+Mono:wght@400;500&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --teal: #08B3C3;
+  --teal-dk: #1A9AA6;
+  --teal-br: #2BBCC8;
+  --teal-glow: rgba(43, 188, 200, 0.08);
+  --teal-bdr: rgba(43, 188, 200, 0.3);
+  --navy: #0D1F3C;
+  --slate: #4A5568;
+  --muted: #8A96A8;
+  --bdr: #E2E8F0;
+  --bg: #F7F9FB;
+  --srf: #FFFFFF;
+  --srf-alt: #F0F4F8;
+  --coral: #EF4444;
+  --amber: #E09C14;
+  --green: #22C55E;
+  --purple: #9333EA;
+  --orange: #F97316;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Nunito', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--navy);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  font-size: 14px;
+  line-height: 1.75;
+}
+
+p, li {
+  line-height: 1.75;
+}
+
+/* Format strip colors */
+.fmt-strip {
+  width: 8px;
+  flex-shrink: 0;
+  border-radius: 10px 0 0 10px;
+  transition: width 0.25s ease;
+}
+
+.fmt-strip.expanded {
+  width: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--srf-alt);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--bdr);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--muted);
+}
+
+/* Animations */
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.2; }
+}
+
+@keyframes pulse-btn {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInSlow {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.2s ease forwards;
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.7s ease forwards;
+}
+
+.animate-fade-in-slow {
+  animation: fadeInSlow 1.2s ease forwards;
+}
+
+.animation-delay-200 { animation-delay: 0.2s; opacity: 0; }
+.animation-delay-400 { animation-delay: 0.4s; opacity: 0; }
+.animation-delay-600 { animation-delay: 0.6s; opacity: 0; }
+.animation-delay-800 { animation-delay: 0.8s; opacity: 0; }
+
+.pulse-dot {
+  animation: pulse-dot 1.5s infinite;
+}
+
+.pulse-btn {
+  animation: pulse-btn 2s infinite;
+}
+
+/* Card accent stripe gradient */
+.card-accent::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--teal-dk), var(--teal-br));
+  border-radius: 14px 14px 0 0;
+}
+
+/* Input focus ring override */
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--teal) !important;
+}
+
+/* Dragging row */
+.dragging-row {
+  opacity: 0.3;
+}
+
+/* Number inputs hide arrows */
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+}
