@@ -35,8 +35,8 @@ export interface ParseResult {
   warnings: string[];
 }
 
-// Valid format codes
-const VALID_FORMATS = ['O', 'D', 'R', 'A', 'I', 'BRK', 'WS', 'P', 'Q'];
+// Valid format codes (must match MeetingFormat enum in DB)
+const VALID_FORMATS = ['FIP', 'FI', 'P+D', 'D', 'WND', 'W+D', 'PR', 'O', 'BRK'];
 
 let _idCounter = Date.now();
 function nextId(): string {
@@ -173,14 +173,15 @@ function normalizeFormat(raw: string): string {
   const upper = raw.toUpperCase().trim();
   if (VALID_FORMATS.includes(upper)) return upper;
   
-  // Common variations
+  // Common variations → map to valid MeetingFormat codes
   if (/^(disc|discussion)$/i.test(raw)) return 'D';
-  if (/^(review|recap)$/i.test(raw)) return 'R';
-  if (/^(action|activity)$/i.test(raw)) return 'A';
-  if (/^(input|info|presentation)$/i.test(raw)) return 'I';
-  if (/^(workshop)$/i.test(raw)) return 'WS';
-  if (/^(q&?a|questions?)$/i.test(raw)) return 'Q';
-  if (/^(plenary)$/i.test(raw)) return 'P';
+  if (/^(review|recap)$/i.test(raw)) return 'FI';
+  if (/^(action|activity)$/i.test(raw)) return 'WND';
+  if (/^(input|info|presentation)$/i.test(raw)) return 'FIP';
+  if (/^(workshop)$/i.test(raw)) return 'WND';
+  if (/^(q&?a|questions?)$/i.test(raw)) return 'O';
+  if (/^(plenary)$/i.test(raw)) return 'FIP';
+  if (/^(prayer|devotion)$/i.test(raw)) return 'PR';
   if (/^(break|brk)$/i.test(raw)) return 'BRK';
   
   return 'O'; // Default to Open

@@ -57,8 +57,8 @@ function MeetingCard({ meeting, onDelete }: { meeting: Meeting; onDelete: () => 
               No agenda yet
             </span>
           )}
-          {meeting.participants.length > 0 && (
-            <span className="text-[9px] text-muted">{meeting.participants.length} participants</span>
+          {(meeting.participants?.length ?? 0) > 0 && (
+            <span className="text-[9px] text-muted">{meeting.participants!.length} participants</span>
           )}
         </div>
 

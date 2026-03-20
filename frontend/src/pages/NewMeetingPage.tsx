@@ -57,7 +57,7 @@ export default function NewMeetingPage() {
       setStartTime(existingMeeting.start_time);
       setLocation(existingMeeting.location || '');
       setFacilitator(existingMeeting.facilitator || '');
-      setParticipantsStr(existingMeeting.participants.join(', '));
+      setParticipantsStr((existingMeeting.participants || []).join(', '));
       setChosenTemplate(existingMeeting.template_id || '');
       setItems(existingMeeting.items.map(i => ({ ...i })));
       if (existingMeeting.alarms_enabled !== undefined) setAlarmsEnabled(existingMeeting.alarms_enabled);

@@ -85,13 +85,14 @@ export async function meetingRoutes(fastify: FastifyInstance) {
     '/meetings',
     { preHandler: requireAuth },
     async (req, reply) => {
-      const { title, subtitle, date, start_time, location, facilitator, participants, template_id, items } = req.body as any;
+      const { title, subtitle, date, start_time, location, facilitator, participants, template_id, items, organisation, alarms_enabled, alarm_minutes_before, alarm_type } = req.body as any;
 
       const { data: meeting, error } = await supabaseAdmin
         .from('meetings')
         .insert({
           user_id: req.userId,
           template_id: template_id || null,
+          organisation: organisation || '',
           title,
           subtitle: subtitle || '',
           date,
@@ -100,6 +101,9 @@ export async function meetingRoutes(fastify: FastifyInstance) {
           facilitator: facilitator || '',
           participants: participants || [],
           status: 'PLANNED',
+          alarms_enabled: alarms_enabled ?? true,
+          alarm_minutes_before: alarm_minutes_before ?? 1,
+          alarm_type: alarm_type || 'chime',
         })
         .select()
         .single();
@@ -144,7 +148,7 @@ export async function meetingRoutes(fastify: FastifyInstance) {
     '/meetings/:id',
     { preHandler: requireAuth },
     async (req, reply) => {
-      const { title, subtitle, date, start_time, location, facilitator, participants, notes, status, actual_start_at, actual_end_at, items } = req.body as any;
+      const { title, subtitle, date, start_time, location, facilitator, participants, notes, status, actual_start_at, actual_end_at, items, organisation, alarms_enabled, alarm_minutes_before, alarm_type } = req.body as any;
 
       const updates: any = {};
       if (title !== undefined) updates.title = title;
@@ -158,6 +162,10 @@ export async function meetingRoutes(fastify: FastifyInstance) {
       if (status !== undefined) updates.status = status;
       if (actual_start_at !== undefined) updates.actual_start_at = actual_start_at;
       if (actual_end_at !== undefined) updates.actual_end_at = actual_end_at;
+      if (organisation !== undefined) updates.organisation = organisation;
+      if (alarms_enabled !== undefined) updates.alarms_enabled = alarms_enabled;
+      if (alarm_minutes_before !== undefined) updates.alarm_minutes_before = alarm_minutes_before;
+      if (alarm_type !== undefined) updates.alarm_type = alarm_type;
 
       const { error } = await supabaseAdmin
         .from('meetings')

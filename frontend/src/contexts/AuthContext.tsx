@@ -11,7 +11,7 @@ interface AuthContextType {
 }
 
 const mockUser = {
-  id: 'test-user',
+  id: '00000000-0000-0000-0000-000000000001',
   email: 'test@test.com',
   user_metadata: { name: 'Test User' },
   app_metadata: {},

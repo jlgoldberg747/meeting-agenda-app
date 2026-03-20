@@ -1,7 +1,7 @@
 import { supabase } from './supabase';
 import type { Template, Meeting, MeetingItemUpdate } from '../types';
 
-const TEST_USER_ID = 'test-user';
+const TEST_USER_ID = '00000000-0000-0000-0000-000000000001';
 
 async function getUserId(): Promise<string> {
   const { data: { user } } = await supabase.auth.getUser();
