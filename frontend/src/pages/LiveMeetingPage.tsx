@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 import * as XLSX from 'xlsx';
 import { api } from '../lib/api';
+import { parseExcelFile } from '../lib/excelParser';
 import {
   calcSchedule, getFormat, FORMATS, m2t, t2m, nowMinutes,
   type MeetingItem, type ScheduledItem, type MeetingFormat,
@@ -175,7 +176,7 @@ function FmtStrip({ format, expanded }: { format: MeetingFormat; expanded: boole
 function FcTag({ fc, schedEnd }: { fc: string; schedEnd: string }) {
   const ok = t2m(fc) <= t2m(schedEnd);
   return (
-    <span className={`inline-block font-mono text-[9px] font-bold px-1 py-0 rounded border ${ok ? 'bg-[var(--teal-tint-bg)] border-[var(--teal-tint-bdr-light)] text-teal-dk' : 'bg-[var(--coral-tint-bg)] border-[var(--coral-tint-bdr)] text-coral'}`}>
+    <span className={`inline-block font-mono text-[11px] font-bold px-1 py-0 rounded border ${ok ? 'bg-[var(--teal-tint-bg)] border-[var(--teal-tint-bdr-light)] text-teal-dk' : 'bg-[var(--coral-tint-bg)] border-[var(--coral-tint-bdr)] text-coral'}`}>
       {fc}
     </span>
   );
@@ -204,11 +205,11 @@ function BrandModal({ open, onClose }: { open: boolean; onClose: () => void }) {
       <div className="bg-srf border-[1.5px] border-bdr rounded-[20px] p-6 max-w-[560px] w-[92%] shadow-card-lg relative" onClick={e => e.stopPropagation()}>
         <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-teal-dk to-teal-br rounded-t-[20px]" />
         <h2 className="text-lg font-black text-navy mb-2">Import Brand Style</h2>
-        <p className="text-slate text-[12px] leading-relaxed mb-2">Paste brand colours (hex), font names.</p>
-        <textarea value={text} onChange={e => setText(e.target.value)} placeholder="Primary: #08B3C3, Navy: #0D1F3C..." className="w-full min-h-[150px] font-mono text-[11px] border-[1.5px] border-bdr rounded-sm p-2.5 bg-bg text-navy resize-y focus:border-teal transition-colors" />
+        <p className="text-slate text-sm leading-relaxed mb-2">Paste brand colours (hex), font names.</p>
+        <textarea value={text} onChange={e => setText(e.target.value)} placeholder="Primary: #08B3C3, Navy: #0D1F3C..." className="w-full min-h-[150px] font-mono text-xs border-[1.5px] border-bdr rounded-sm p-2.5 bg-bg text-navy resize-y focus:border-teal transition-colors" />
         <div className="flex gap-2 mt-3 justify-end">
-          <button onClick={onClose} className="px-4 py-2 rounded-full font-extrabold text-[11px] uppercase tracking-wider text-muted border-[1.5px] border-bdr hover:border-teal hover:text-teal-dk transition-all">Cancel</button>
-          <button onClick={apply} className="px-4 py-2 rounded-full font-extrabold text-[11px] uppercase tracking-wider text-white bg-gradient-to-r from-teal-dk to-teal-br shadow-teal hover:-translate-y-0.5 transition-all">Apply</button>
+          <button onClick={onClose} className="px-4 py-2 rounded-full font-extrabold text-xs uppercase tracking-wider text-muted border-[1.5px] border-bdr hover:border-teal hover:text-teal-dk transition-all">Cancel</button>
+          <button onClick={apply} className="px-4 py-2 rounded-full font-extrabold text-xs uppercase tracking-wider text-white bg-gradient-to-r from-teal-dk to-teal-br shadow-teal hover:-translate-y-0.5 transition-all">Apply</button>
         </div>
       </div>
     </div>
@@ -658,8 +659,20 @@ export default function LiveMeetingPage() {
 
   const handleFileImport = async (file: File) => {
     try {
-      const result = await parseImportFile(file, editMeta.start_time);
-      if (result.items.length > 0) setEditItems(result.items);
+      const result = await parseExcelFile(file, editMeta.start_time);
+      // Map ParsedItem → MeetingItem shape
+      const mapped: MeetingItem[] = result.items.map(item => ({
+        ...item,
+        format: item.format as MeetingFormat,
+        meeting_id: '',
+        status: 'pending' as const,
+        actual_start_at: null,
+        actual_end_at: null,
+        actual_duration_minutes: null,
+        created_at: '',
+        updated_at: '',
+      }));
+      if (mapped.length > 0) setEditItems(mapped);
       if (result.meta) {
         setEditMeta(prev => ({
           ...prev,
@@ -673,7 +686,11 @@ export default function LiveMeetingPage() {
         }));
       }
       if (result.newStartTime) setEditMeta(prev => ({ ...prev, start_time: result.newStartTime! }));
-    } catch { /* ignore */ }
+      if (result.warnings?.length) console.warn('[Import warnings]', result.warnings);
+    } catch (err: any) {
+      console.error('[Import error]', err?.message || err);
+      alert(`Import failed: ${err?.message || 'Unknown error'}`);
+    }
   };
 
   // ── Loading / Not Found ────────────────────────────────────────────────────
@@ -716,10 +733,10 @@ export default function LiveMeetingPage() {
         {/* Center: Mode tabs */}
         <div className="flex gap-0.5">
           {!locked && (
-            <button onClick={() => setMode('edit')} className={`px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-widest border-[1.5px] transition-all tap-target ${mode === 'edit' ? 'text-teal-dk bg-[var(--teal-tint-bg)] border-[var(--teal-tint-bdr)]' : 'text-muted border-transparent hover:text-slate hover:bg-srf-alt'}`}>Edit</button>
+            <button onClick={() => setMode('edit')} className={`px-3 py-1 rounded-full text-xs font-extrabold uppercase tracking-widest border-[1.5px] transition-all tap-target ${mode === 'edit' ? 'text-teal-dk bg-[var(--teal-tint-bg)] border-[var(--teal-tint-bdr)]' : 'text-muted border-transparent hover:text-slate hover:bg-srf-alt'}`}>Create / Edit</button>
           )}
           {(['summary', 'detail', 'track'] as ViewMode[]).map(v => (
-            <button key={v} onClick={() => setMode(v)} className={`px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-widest border-[1.5px] transition-all tap-target ${mode === v ? 'text-teal-dk bg-[var(--teal-tint-bg)] border-[var(--teal-tint-bdr)]' : 'text-muted border-transparent hover:text-slate hover:bg-srf-alt'}`}>
+            <button key={v} onClick={() => setMode(v)} className={`px-3 py-1 rounded-full text-xs font-extrabold uppercase tracking-widest border-[1.5px] transition-all tap-target ${mode === v ? 'text-teal-dk bg-[var(--teal-tint-bg)] border-[var(--teal-tint-bdr)]' : 'text-muted border-transparent hover:text-slate hover:bg-srf-alt'}`}>
               {v.charAt(0).toUpperCase() + v.slice(1)}
             </button>
           ))}
@@ -729,7 +746,7 @@ export default function LiveMeetingPage() {
         <div className="nav-right flex items-center gap-1.5">
           {/* Drift pill */}
           {mode === 'track' && hasTracking && (
-            <span className={`flex items-center gap-1 text-[9px] font-extrabold px-2 py-0.5 rounded-full border-[1.5px] ${drift >= 0 ? 'text-teal-dk bg-[var(--teal-tint-bg)] border-[var(--teal-tint-bdr)]' : 'text-coral bg-[var(--coral-tint-bg)] border-coral'}`}>
+            <span className={`flex items-center gap-1 text-[11px] font-extrabold px-2 py-0.5 rounded-full border-[1.5px] ${drift >= 0 ? 'text-teal-dk bg-[var(--teal-tint-bg)] border-[var(--teal-tint-bdr)]' : 'text-coral bg-[var(--coral-tint-bg)] border-coral'}`}>
               <span className="w-1.5 h-1.5 rounded-full bg-current inline-block pulse-dot" />
               {drift === 0 ? 'ON TIME' : drift > 0 ? `+${drift}m ahead` : `${Math.abs(drift)}m behind`}
             </span>
@@ -747,22 +764,22 @@ export default function LiveMeetingPage() {
           <button onClick={() => playChime(true)} className="w-7 h-7 rounded-full bg-gradient-to-r from-teal-dk to-teal-br text-white flex items-center justify-center shadow-teal hover:scale-110 transition-all text-sm tap-target" title="Manual chime (M)">🔔</button>
 
           {/* Chime toggle */}
-          <button onClick={() => setChimesOn(c => !c)} className={`text-[9px] font-extrabold px-2 py-1 rounded-full border-[1.5px] transition-all tap-target ${chimesOn ? 'text-amber border-amber' : 'text-muted border-bdr'}`}>{chimesOn ? '🔔' : '🔕'}</button>
+          <button onClick={() => setChimesOn(c => !c)} className={`text-[11px] font-extrabold px-2 py-1 rounded-full border-[1.5px] transition-all tap-target ${chimesOn ? 'text-amber border-amber' : 'text-muted border-bdr'}`}>{chimesOn ? '🔔 On' : '🔕 Off'}</button>
 
           {/* Presenter mode toggle */}
           <button
             onClick={() => setPresenterMode(p => !p)}
-            className={`text-[9px] font-extrabold px-2 py-1 rounded-full border-[1.5px] transition-all tap-target ${presenterMode ? 'text-teal-dk border-teal bg-[var(--teal-tint-bg)]' : 'text-muted border-bdr hover:border-teal hover:text-teal-dk'}`}
+            className={`text-[11px] font-extrabold px-2 py-1 rounded-full border-[1.5px] transition-all tap-target ${presenterMode ? 'text-teal-dk border-teal bg-[var(--teal-tint-bg)]' : 'text-muted border-bdr hover:border-teal hover:text-teal-dk'}`}
             title="Presenter mode (F)"
           >
             {presenterMode ? '⊡' : '⊞'}
           </button>
 
           {/* Lock */}
-          <button onClick={() => { setLocked(l => { const next = !l; if (next && mode === 'edit') setMode('summary'); return next; }); }} className={`text-[9px] font-extrabold px-2 py-1 rounded-full border-[1.5px] transition-all tap-target ${locked ? 'text-coral border-coral' : 'text-muted border-bdr hover:border-teal hover:text-teal-dk'}`}>{locked ? '🔒' : '🔓'}</button>
+          <button onClick={() => { setLocked(l => { const next = !l; if (next && mode === 'edit') setMode('summary'); return next; }); }} className={`text-[11px] font-extrabold px-2 py-1 rounded-full border-[1.5px] transition-all tap-target ${locked ? 'text-coral border-coral' : 'text-muted border-bdr hover:border-teal hover:text-teal-dk'}`}>{locked ? '🔒 Locked' : '🔓 Lock'}</button>
 
           {/* Exit */}
-          <Link to={`/meetings/${id}`} className="text-[9px] font-extrabold px-2.5 py-1 rounded-full border-[1.5px] border-bdr text-muted hover:border-teal hover:text-teal-dk transition-all tap-target">Exit</Link>
+          <Link to={`/meetings/${id}`} className="text-[11px] font-extrabold px-2.5 py-1 rounded-full border-[1.5px] border-bdr text-muted hover:border-teal hover:text-teal-dk transition-all tap-target">← Exit</Link>
         </div>
       </div>
 
@@ -778,28 +795,28 @@ export default function LiveMeetingPage() {
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-3 min-w-0">
               <h1 className="text-sm font-black text-navy truncate">{meeting.title}</h1>
-              <span className="text-[10px] text-muted font-mono">{firstItem?.sched_start} – {lastItem?.sched_end}</span>
+              <span className="text-xs text-muted font-mono">{firstItem?.sched_start} – {lastItem?.sched_end}</span>
             </div>
             <div className="flex items-center gap-3 flex-shrink-0">
               {hasTracking && (
-                <span className={`font-mono font-bold px-1.5 py-0 rounded border text-[10px] ${drift >= 0 ? 'bg-[var(--teal-tint-bg)] border-[var(--teal-tint-bdr-light)] text-teal-dk' : 'bg-[var(--coral-tint-bg)] border-[var(--coral-tint-bdr-strong)] text-coral'}`}>
+                <span className={`font-mono font-bold px-1.5 py-0 rounded border text-xs ${drift >= 0 ? 'bg-[var(--teal-tint-bg)] border-[var(--teal-tint-bdr-light)] text-teal-dk' : 'bg-[var(--coral-tint-bg)] border-[var(--coral-tint-bdr-strong)] text-coral'}`}>
                   FC {pFinish}
                 </span>
               )}
-              <span className="text-[9px] text-muted">click to expand</span>
+              <span className="text-[11px] text-muted">click to expand</span>
             </div>
           </div>
         ) : (
           /* Expanded: full header */
           <>
             <h1 className="text-xl font-black text-navy tracking-tight">{meeting.title}</h1>
-            {meeting.subtitle && <div className="text-slate text-[12px] font-semibold mt-0.5">{meeting.subtitle}</div>}
-            <div className="flex gap-3 mt-2 flex-wrap text-[10px] text-muted font-bold">
+            {meeting.subtitle && <div className="text-slate text-sm font-semibold mt-0.5">{meeting.subtitle}</div>}
+            <div className="flex gap-3 mt-2 flex-wrap text-xs text-muted font-bold">
               <span className="text-slate font-bold">{meeting.date}</span>
               {meeting.location && <span>{meeting.location}</span>}
               {firstItem && <span>{firstItem.sched_start} – {lastItem?.sched_end}</span>}
               {hasTracking && (
-                <span className={`font-mono font-bold px-1.5 py-0 rounded border text-[10px] ${drift >= 0 ? 'bg-[var(--teal-tint-bg)] border-[var(--teal-tint-bdr-light)] text-teal-dk' : 'bg-[var(--coral-tint-bg)] border-[var(--coral-tint-bdr-strong)] text-coral'}`}>
+                <span className={`font-mono font-bold px-1.5 py-0 rounded border text-xs ${drift >= 0 ? 'bg-[var(--teal-tint-bg)] border-[var(--teal-tint-bdr-light)] text-teal-dk' : 'bg-[var(--coral-tint-bg)] border-[var(--coral-tint-bdr-strong)] text-coral'}`}>
                   {drift >= 0 ? '✓' : '⚠'} FC {pFinish}
                 </span>
               )}
@@ -821,7 +838,7 @@ export default function LiveMeetingPage() {
       {showLegend && (
         <div className="flex flex-wrap gap-0 bg-srf border-[1.5px] border-bdr rounded-sm shadow-card overflow-hidden mt-4 mb-4 animate-fade-in">
           {FORMATS.map(f => (
-            <div key={f.c} className="flex items-center gap-1.5 text-[10px] font-bold text-slate px-3 py-2.5 border-r border-bdr last:border-r-0 flex-1 min-w-[140px]">
+            <div key={f.c} className="flex items-center gap-1.5 text-xs font-bold text-slate px-3 py-2.5 border-r border-bdr last:border-r-0 flex-1 min-w-[140px]">
               <div className="w-[18px] h-1 rounded-full flex-shrink-0" style={{ background: f.cl }} />
               <strong>{f.c}</strong> {f.l}
             </div>
@@ -831,10 +848,10 @@ export default function LiveMeetingPage() {
 
       {/* Bottom controls */}
       <div className="fixed bottom-4 left-4 z-[90] flex gap-2">
-        <button onClick={() => setShowLegend(l => !l)} className="bg-srf border-[1.5px] border-bdr rounded-full px-3 py-1 text-[9px] font-extrabold text-muted shadow-card hover:border-teal hover:text-teal-dk transition-all uppercase tracking-wider">
+        <button onClick={() => setShowLegend(l => !l)} className="bg-srf border-[1.5px] border-bdr rounded-full px-3 py-1 text-[11px] font-extrabold text-muted shadow-card hover:border-teal hover:text-teal-dk transition-all uppercase tracking-wider">
           {showLegend ? '◂ Hide legend' : '▸ Legend'}
         </button>
-        <button onClick={() => setFmtExpanded(f => !f)} className="bg-srf border-[1.5px] border-bdr rounded-full px-3 py-1 text-[9px] font-extrabold text-muted shadow-card hover:border-teal hover:text-teal-dk transition-all uppercase tracking-wider">
+        <button onClick={() => setFmtExpanded(f => !f)} className="bg-srf border-[1.5px] border-bdr rounded-full px-3 py-1 text-[11px] font-extrabold text-muted shadow-card hover:border-teal hover:text-teal-dk transition-all uppercase tracking-wider">
           {fmtExpanded ? '◂ Thin strips' : '▸ Wide strips'}
         </button>
       </div>
@@ -842,10 +859,10 @@ export default function LiveMeetingPage() {
       {/* Keyboard shortcut hints (bottom right) — hidden on touch devices */}
       {mode === 'track' && (
         <div className="kbd-hints fixed bottom-4 right-4 z-[90] flex gap-1.5 items-center">
-          <span className="kbd">Space</span><span className="text-[8px] text-muted mr-2">start/end</span>
-          <span className="kbd">M</span><span className="text-[8px] text-muted mr-2">chime</span>
-          <span className="kbd">F</span><span className="text-[8px] text-muted mr-2">fullscreen</span>
-          <span className="kbd">D</span><span className="text-[8px] text-muted">dark mode</span>
+          <span className="kbd">Space</span><span className="text-[10px] text-muted mr-2">start/end</span>
+          <span className="kbd">M</span><span className="text-[10px] text-muted mr-2">chime</span>
+          <span className="kbd">F</span><span className="text-[10px] text-muted mr-2">fullscreen</span>
+          <span className="kbd">D</span><span className="text-[10px] text-muted">dark mode</span>
         </div>
       )}
 
@@ -857,11 +874,11 @@ export default function LiveMeetingPage() {
           <div className="bg-srf border-[1.5px] border-bdr rounded-[20px] p-6 max-w-md w-[92%] shadow-card-lg relative">
             <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-teal-dk to-teal-br rounded-t-[20px]" />
             <h2 className="text-lg font-black text-navy mb-2">Complete Meeting?</h2>
-            <p className="text-slate text-[12px] mb-4">This will mark the meeting as completed and save all tracking data.</p>
-            <textarea value={notes} onChange={e => setNotes(e.target.value)} rows={3} placeholder="Final notes..." className="w-full text-[11px] border-[1.5px] border-bdr rounded-sm px-3 py-2 bg-bg text-navy resize-none focus:border-teal transition-colors mb-3" />
+            <p className="text-slate text-sm mb-4">This will mark the meeting as completed and save all tracking data.</p>
+            <textarea value={notes} onChange={e => setNotes(e.target.value)} rows={3} placeholder="Final notes..." className="w-full text-xs border-[1.5px] border-bdr rounded-sm px-3 py-2 bg-bg text-navy resize-none focus:border-teal transition-colors mb-3" />
             <div className="flex gap-2 justify-end">
-              <button onClick={() => setCompletedModal(false)} className="px-4 py-2 rounded-full font-extrabold text-[11px] uppercase tracking-wider text-muted border-[1.5px] border-bdr hover:border-teal hover:text-teal-dk transition-all">Cancel</button>
-              <button onClick={handleCompleteMeeting} className="px-4 py-2 rounded-full font-extrabold text-[11px] uppercase tracking-wider text-white bg-gradient-to-r from-teal-dk to-teal-br shadow-teal hover:-translate-y-0.5 transition-all">Complete & Save</button>
+              <button onClick={() => setCompletedModal(false)} className="px-4 py-2 rounded-full font-extrabold text-xs uppercase tracking-wider text-muted border-[1.5px] border-bdr hover:border-teal hover:text-teal-dk transition-all">Cancel</button>
+              <button onClick={handleCompleteMeeting} className="px-4 py-2 rounded-full font-extrabold text-xs uppercase tracking-wider text-white bg-gradient-to-r from-teal-dk to-teal-br shadow-teal hover:-translate-y-0.5 transition-all">Complete & Save</button>
             </div>
           </div>
         </div>
@@ -890,7 +907,7 @@ export default function LiveMeetingPage() {
               { label: 'Progress', value: `${doneCnt}/${scheduled.length}`, cls: 'text-navy' },
             ].map(({ label, value, cls }) => (
               <div key={label} className="text-center">
-                <div className="text-[8px] font-extrabold uppercase tracking-widest text-muted">{label}</div>
+                <div className="text-[10px] font-extrabold uppercase tracking-widest text-muted">{label}</div>
                 <div className={`font-mono font-bold text-[17px] mt-0.5 ${cls}`}>{value}</div>
               </div>
             ))}
@@ -927,15 +944,15 @@ export default function LiveMeetingPage() {
                         <div className="hero-layout flex items-start justify-between gap-4 mb-4">
                           <div className="min-w-0">
                             <div className="flex items-center gap-2 mb-1">
-                              <span className="text-[9px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full" style={{ color: fmt.cl, background: `${fmt.cl}18` }}>{fmt.c}</span>
-                              <span className="text-[10px] text-muted font-mono">{c.sched_start} – {c.sched_end} · {c.duration_minutes}m</span>
+                              <span className="text-[11px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full" style={{ color: fmt.cl, background: `${fmt.cl}18` }}>{fmt.c}</span>
+                              <span className="text-xs text-muted font-mono">{c.sched_start} – {c.sched_end} · {c.duration_minutes}m</span>
                             </div>
                             <h2 className="text-xl font-black text-navy">{c.is_break ? '☕ ' : ''}{c.title}</h2>
                             {c.objective && <p className="text-[13px] text-slate mt-1">{c.objective.split('\n')[0]}</p>}
                           </div>
                           <div className="hero-timer-col flex-shrink-0 text-right">
                             <GiantTimer seconds={remainSecs} overtime={overtime} />
-                            <div className="text-[9px] text-muted font-extrabold mt-1">{overtime ? 'OVERTIME' : 'REMAINING'}</div>
+                            <div className="text-[11px] text-muted font-extrabold mt-1">{overtime ? 'OVERTIME' : 'REMAINING'}</div>
                           </div>
                         </div>
 
@@ -964,7 +981,7 @@ export default function LiveMeetingPage() {
                               className="text-muted text-[11px] px-2 opacity-50 hover:opacity-100 hover:text-teal-dk transition-all"
                             >✎ manual</button>
                           </div>
-                          <div className="text-[10px] text-muted font-mono">
+                          <div className="text-xs text-muted font-mono">
                             Started {m2t(tr.sM)} · {el}m elapsed
                           </div>
                         </div>
@@ -972,7 +989,7 @@ export default function LiveMeetingPage() {
                         {/* Approach (always visible for active) */}
                         {c.approach && (
                           <div className="mt-4 pt-3 border-t border-bdr">
-                            <div className="text-[11px] text-slate leading-relaxed">
+                            <div className="text-xs text-slate leading-relaxed">
                               <strong className="text-navy">Approach:</strong> {c.approach.split('\n').map((l, i) => <span key={i}>{l}<br /></span>)}
                             </div>
                           </div>
@@ -994,7 +1011,7 @@ export default function LiveMeetingPage() {
 
                   {/* Up Next preview */}
                   {nextSession && (
-                    <div className="up-next flex items-center gap-2 px-4 py-2 mt-1 text-[10px] text-muted">
+                    <div className="up-next flex items-center gap-2 px-4 py-2 mt-1 text-xs text-muted">
                       <span className="font-extrabold uppercase tracking-wider">Up Next</span>
                       <div className="w-3 h-[3px] rounded-full" style={{ background: getFormat(nextSession.format).cl }} />
                       <span className="font-bold text-slate">{nextSession.title}</span>
@@ -1069,24 +1086,24 @@ export default function LiveMeetingPage() {
                 <FmtStrip format={c.format} expanded={fmtExpanded} />
                 <div className={`flex-1 min-w-0 bg-srf border-[1.5px] border-bdr border-l-0 rounded-r-sm shadow-card transition-all hover:border-[var(--teal-tint-bdr)]`}>
                   <div className="upcoming-grid grid items-center px-3 py-2 gap-2.5 cursor-pointer" style={{ gridTemplateColumns: '80px minmax(60px,0.35fr) 1fr auto' }} onClick={() => setTrkExpandedId(exp ? null : c.id)}>
-                    <div className="font-mono text-[10px] text-muted leading-tight flex items-baseline gap-1.5 flex-wrap">
+                    <div className="font-mono text-xs text-muted leading-tight flex items-baseline gap-1.5 flex-wrap">
                       <span>{c.sched_start} – {c.sched_end}</span>
-                      <span className="text-[9px]">{c.duration_minutes}m</span>
+                      <span className="text-[11px]">{c.duration_minutes}m</span>
                       {pr && <FcTag fc={fc} schedEnd={c.sched_end} />}
                     </div>
-                    <div className="text-[13px] font-extrabold text-navy truncate">{c.title}</div>
-                    <div className="text-[12px] text-slate truncate">{(c.objective || '').split('\n')[0]}</div>
+                    <div className="text-sm font-extrabold text-navy truncate">{c.is_break ? '☕ ' : ''}{c.title}</div>
+                    <div className="text-xs text-slate truncate">{(c.objective || '').split('\n')[0]}</div>
                     <div className="flex items-center gap-1.5 flex-shrink-0" onClick={e => e.stopPropagation()}>
-                      {pr && <span className="font-mono text-[9px] text-muted">≈ {pr.pS}</span>}
+                      {pr && <span className="font-mono text-[11px] text-muted">≈ {pr.pS}</span>}
                       {isManual ? (
                         <div className="flex items-center gap-1">
-                          <input className="font-mono text-[10px] w-[44px] text-center border-[1.5px] border-bdr rounded-md px-0.5 py-0.5 bg-srf-alt text-navy focus:border-teal" placeholder="HH:MM" value={manualStart} onChange={e => setManualStart(e.target.value)} />
-                          <input className="font-mono text-[10px] w-[44px] text-center border-[1.5px] border-bdr rounded-md px-0.5 py-0.5 bg-srf-alt text-navy focus:border-teal" placeholder="HH:MM" value={manualEnd} onChange={e => setManualEnd(e.target.value)} />
-                          <button onClick={() => handleManualSave(c.id)} className="px-2 py-0.5 rounded-full font-extrabold text-[8px] bg-[var(--teal-tint-bg-strong)] text-teal-dk border-[1.5px] border-[var(--teal-tint-bdr)]">✓</button>
+                          <input className="font-mono text-xs w-[44px] text-center border-[1.5px] border-bdr rounded-md px-0.5 py-0.5 bg-srf-alt text-navy focus:border-teal" placeholder="HH:MM" value={manualStart} onChange={e => setManualStart(e.target.value)} />
+                          <input className="font-mono text-xs w-[44px] text-center border-[1.5px] border-bdr rounded-md px-0.5 py-0.5 bg-srf-alt text-navy focus:border-teal" placeholder="HH:MM" value={manualEnd} onChange={e => setManualEnd(e.target.value)} />
+                          <button onClick={() => handleManualSave(c.id)} className="px-2 py-0.5 rounded-full font-extrabold text-[10px] bg-[var(--teal-tint-bg-strong)] text-teal-dk border-[1.5px] border-[var(--teal-tint-bdr)]">✓</button>
                         </div>
                       ) : !activeId ? (
                         <>
-                          <button onClick={() => handleStart(c.id)} className="px-3 py-1 rounded-full font-extrabold text-[9px] uppercase tracking-wider bg-[var(--teal-tint-bg-strong)] text-teal-dk border-[1.5px] border-[var(--teal-tint-bdr)] hover:bg-teal hover:text-white transition-all">Start</button>
+                          <button onClick={() => handleStart(c.id)} className="px-3 py-1 rounded-full font-extrabold text-[11px] uppercase tracking-wider bg-[var(--teal-tint-bg-strong)] text-teal-dk border-[1.5px] border-[var(--teal-tint-bdr)] hover:bg-teal hover:text-white transition-all">Start</button>
                           <button onClick={() => { setManualEntry(c.id); setManualStart(''); setManualEnd(''); }} className="text-muted text-[11px] px-0.5 opacity-35 hover:opacity-100 hover:text-teal-dk transition-all">✎</button>
                         </>
                       ) : (
@@ -1096,7 +1113,7 @@ export default function LiveMeetingPage() {
                   </div>
                   {c.approach && exp && (
                     <div className="px-3 pb-2 border-t border-bdr">
-                      <div className="pt-2 text-[11px] text-slate leading-relaxed pl-[90px]">
+                      <div className="pt-2 text-xs text-slate leading-relaxed pl-[90px]">
                         <strong>Approach:</strong> {c.approach.split('\n').map((l, i) => <span key={i}>{l}<br /></span>)}
                       </div>
                     </div>
@@ -1121,14 +1138,14 @@ export default function LiveMeetingPage() {
 
         {/* ── Meeting Notes ── */}
         <div className="bg-srf border-[1.5px] border-bdr rounded-card shadow-card p-4 mt-3">
-          <label className="block text-[9px] font-extrabold uppercase tracking-widest text-muted mb-2">Meeting Notes</label>
-          <textarea value={notes} onChange={e => setNotes(e.target.value)} placeholder="Overall meeting notes, decisions, action items..." rows={3} className="w-full text-[12px] border-[1.5px] border-bdr rounded-sm px-3 py-2 bg-bg text-navy resize-none focus:border-teal transition-colors" />
+          <label className="block text-[11px] font-extrabold uppercase tracking-widest text-muted mb-2">Meeting Notes</label>
+          <textarea value={notes} onChange={e => setNotes(e.target.value)} placeholder="Overall meeting notes, decisions, action items..." rows={3} className="w-full text-sm border-[1.5px] border-bdr rounded-sm px-3 py-2 bg-bg text-navy resize-none focus:border-teal transition-colors" />
         </div>
 
         {/* ── Bottom Controls ── */}
         <div className="flex items-center justify-between mt-3 flex-wrap gap-3">
-          <button onClick={handleResetTracking} className="px-4 py-2 rounded-full font-extrabold text-[10px] uppercase tracking-wider text-coral border-[1.5px] border-coral hover:bg-[var(--coral-hover)] transition-all">Reset Tracking</button>
-          <button onClick={() => setCompletedModal(true)} className="px-5 py-2 rounded-full font-extrabold text-[11px] uppercase tracking-wider text-white bg-gradient-to-r from-teal-dk to-teal-br shadow-teal hover:-translate-y-0.5 transition-all">Complete Meeting</button>
+          <button onClick={handleResetTracking} className="px-4 py-2 rounded-full font-extrabold text-xs uppercase tracking-wider text-coral border-[1.5px] border-coral hover:bg-[var(--coral-hover)] transition-all">Reset Tracking</button>
+          <button onClick={() => setCompletedModal(true)} className="px-5 py-2 rounded-full font-extrabold text-xs uppercase tracking-wider text-white bg-gradient-to-r from-teal-dk to-teal-br shadow-teal hover:-translate-y-0.5 transition-all">Complete Meeting</button>
         </div>
       </>
     );
@@ -1145,13 +1162,13 @@ export default function LiveMeetingPage() {
         <div className="flex gap-2.5 items-stretch">
           <div className="flex-1 border-[1.5px] border-dashed border-bdr rounded-card p-5 text-center transition-all hover:border-teal hover:bg-[var(--teal-glow)] cursor-pointer relative" onDragOver={e => e.preventDefault()} onDrop={e => { e.preventDefault(); const f = e.dataTransfer.files[0]; if (f) handleFileImport(f); }}>
             <div className="text-[22px] opacity-30 mb-1">📋</div>
-            <div className="text-[12px] font-extrabold text-slate">Import Agenda</div>
-            <div className="text-[10px] text-muted mt-0.5">Drag & drop Excel/CSV</div>
+            <div className="text-xs font-extrabold text-slate">Import Agenda</div>
+            <div className="text-[11px] text-muted mt-0.5">Drag & drop Excel/CSV</div>
             <input type="file" accept=".csv,.xlsx,.xls,.tsv" className="absolute inset-0 opacity-0 cursor-pointer" onChange={e => { const f = e.target.files?.[0]; if (f) handleFileImport(f); e.target.value = ''; }} />
           </div>
           <div className="flex flex-col justify-center items-center gap-1.5 px-4 py-3 bg-srf border-[1.5px] border-bdr rounded-card min-w-[120px]">
             <div className="text-[18px] opacity-30">📥</div>
-            <button onClick={downloadTemplate} className="px-2.5 py-1 rounded-full font-extrabold text-[9px] uppercase tracking-wider text-white bg-gradient-to-r from-teal-dk to-teal-br shadow-teal">Template</button>
+            <button onClick={downloadTemplate} className="px-2.5 py-1 rounded-full font-extrabold text-[11px] uppercase tracking-wider text-white bg-gradient-to-r from-teal-dk to-teal-br shadow-teal">Template</button>
           </div>
         </div>
 
@@ -1160,12 +1177,12 @@ export default function LiveMeetingPage() {
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {([['organisation', 'Organisation'], ['title', 'Meeting Title'], ['subtitle', 'Subtitle'], ['date', 'Date'], ['location', 'Location'], ['facilitator', 'Facilitator']] as const).map(([key, label]) => (
               <div key={key} className="flex flex-col gap-1">
-                <label className="text-[9px] font-extrabold uppercase tracking-widest text-muted">{label}</label>
+                <label className="text-[11px] font-extrabold uppercase tracking-widest text-muted">{label}</label>
                 <input value={editMeta[key]} onChange={e => setEditMeta(prev => ({ ...prev, [key]: e.target.value }))} className="border-[1.5px] border-bdr rounded-sm px-2.5 py-1.5 text-[13px] bg-srf text-navy focus:border-teal transition-colors" />
               </div>
             ))}
             <div className="flex flex-col gap-1">
-              <label className="text-[9px] font-extrabold uppercase tracking-widest text-muted">Start Time</label>
+              <label className="text-[11px] font-extrabold uppercase tracking-widest text-muted">Start Time</label>
               <input value={editMeta.start_time} onChange={e => setEditMeta(prev => ({ ...prev, start_time: e.target.value }))} className="border-[1.5px] border-bdr rounded-sm px-2.5 py-1.5 text-[13px] font-mono bg-srf text-navy focus:border-teal transition-colors w-[70px]" />
             </div>
           </div>
@@ -1175,7 +1192,7 @@ export default function LiveMeetingPage() {
           <h3 className="text-[13px] font-black text-navy mb-2.5">Settings</h3>
           <div className="flex items-center gap-2.5 mb-2 text-[12px]">
             <label className="font-bold text-slate min-w-[90px]">Chimes</label>
-            <button onClick={() => setChimesOn(c => !c)} className={`text-[9px] font-extrabold px-2.5 py-1 rounded-full border-[1.5px] transition-all cursor-pointer ${chimesOn ? 'text-amber border-amber' : 'text-muted border-bdr'}`}>{chimesOn ? '🔔 On' : '🔕 Off'}</button>
+            <button onClick={() => setChimesOn(c => !c)} className={`text-[11px] font-extrabold px-2.5 py-1 rounded-full border-[1.5px] transition-all cursor-pointer ${chimesOn ? 'text-amber border-amber' : 'text-muted border-bdr'}`}>{chimesOn ? '🔔 On' : '🔕 Off'}</button>
           </div>
           <div className="flex items-center gap-2.5 mb-2 text-[12px]">
             <label className="font-bold text-slate min-w-[90px]">Alert timers</label>
@@ -1184,16 +1201,16 @@ export default function LiveMeetingPage() {
             ))}
             <span className="text-[10px] text-muted">min before FC End</span>
           </div>
-          <div className="text-[11px] text-muted leading-relaxed mt-2 px-3 py-2 bg-srf-alt rounded-sm border-l-[3px] border-teal">
-            <strong>Chime rules:</strong> Soft chimes play at warning intervals; a louder chime plays at 0 min (session end).
+          <div className="text-xs text-muted leading-relaxed mt-2 px-3 py-2 bg-srf-alt rounded-sm border-l-[3px] border-teal">
+            <strong>Chime rules:</strong> When a session is active and chimes are ON, a zen meditation chime plays at each configured number of minutes before the Forecast End time (= actual start + planned duration). Soft chimes play at warning intervals; a louder chime plays at 0 min (session end).
           </div>
           <div className="flex items-center gap-2.5 mt-3 pt-3 border-t border-bdr text-[12px]">
             <label className="font-bold text-slate min-w-[90px]">Brand</label>
-            <button onClick={() => setBrandModal(true)} className="px-3.5 py-1 rounded-full font-extrabold text-[9px] uppercase tracking-wider text-muted border-[1.5px] border-bdr hover:border-teal hover:text-teal-dk transition-all">Import Brand Style</button>
+            <button onClick={() => setBrandModal(true)} className="px-3.5 py-1 rounded-full font-extrabold text-[11px] uppercase tracking-wider text-muted border-[1.5px] border-bdr hover:border-teal hover:text-teal-dk transition-all">Import Brand Style</button>
           </div>
           <div className="flex items-center gap-2.5 mt-2 text-[12px]">
             <label className="font-bold text-slate min-w-[90px]">Export</label>
-            <button onClick={() => exportAgenda(meeting, scheduled)} className="px-3.5 py-1 rounded-full font-extrabold text-[9px] uppercase tracking-wider text-white bg-gradient-to-r from-teal-dk to-teal-br shadow-teal">Export (.xlsx)</button>
+            <button onClick={() => exportAgenda(meeting, scheduled)} className="px-3.5 py-1 rounded-full font-extrabold text-[11px] uppercase tracking-wider text-white bg-gradient-to-r from-teal-dk to-teal-br shadow-teal">↓ Export Agenda (.xlsx)</button>
           </div>
         </div>
 
@@ -1205,7 +1222,7 @@ export default function LiveMeetingPage() {
                   <thead>
                     <tr className="bg-srf-alt">
                       {['', 'Start', 'Dur', 'End', 'Format', 'Title', 'Objective', 'Theme', 'Approach', ''].map((h, i) => (
-                        <th key={i} className={`text-left text-[8px] font-extrabold uppercase tracking-widest text-muted px-1 py-2 border-b-[1.5px] border-bdr ${i === 0 ? 'w-[20px]' : i === 1 || i === 3 ? 'w-[38px]' : i === 2 ? 'w-[30px]' : i === 4 ? 'w-[56px]' : i === 9 ? 'w-[60px]' : ''}`}>{h}</th>
+                        <th key={i} className={`text-left text-[10px] font-extrabold uppercase tracking-widest text-muted px-1 py-2 border-b-[1.5px] border-bdr ${i === 0 ? 'w-[20px]' : i === 1 || i === 3 ? 'w-[38px]' : i === 2 ? 'w-[30px]' : i === 4 ? 'w-[56px]' : i === 9 ? 'w-[60px]' : ''}`}>{h}</th>
                       ))}
                     </tr>
                   </thead>
@@ -1246,7 +1263,7 @@ export default function LiveMeetingPage() {
         </div>
 
         <div className="flex justify-end">
-          <button onClick={handleEditSave} disabled={updateMeetingMutation.isPending} className="px-5 py-2 rounded-full font-extrabold text-[11px] uppercase tracking-wider text-white bg-gradient-to-r from-teal-dk to-teal-br shadow-teal hover:-translate-y-0.5 transition-all disabled:opacity-60">
+          <button onClick={handleEditSave} disabled={updateMeetingMutation.isPending} className="px-5 py-2 rounded-full font-extrabold text-xs uppercase tracking-wider text-white bg-gradient-to-r from-teal-dk to-teal-br shadow-teal hover:-translate-y-0.5 transition-all disabled:opacity-60">
             {updateMeetingMutation.isPending ? 'Saving...' : 'Save Changes'}
           </button>
         </div>

@@ -139,14 +139,14 @@ export default function NewMeetingPage() {
           <div className="flex gap-2">
             <button
               onClick={() => navigate(-1)}
-              className="px-4 py-2 rounded-full font-extrabold text-[11px] uppercase tracking-wider text-muted border-[1.5px] border-bdr hover:border-teal hover:text-teal-dk transition-all"
+              className="px-4 py-2 rounded-full font-extrabold text-xs uppercase tracking-wider text-muted border-[1.5px] border-bdr hover:border-teal hover:text-teal-dk transition-all"
             >
               Cancel
             </button>
             <button
               onClick={handleSave}
               disabled={saveMutation.isPending}
-              className="px-4 py-2 rounded-full font-extrabold text-[11px] uppercase tracking-wider text-white bg-gradient-to-r from-teal-dk to-teal-br shadow-teal hover:-translate-y-0.5 transition-all disabled:opacity-60"
+              className="px-4 py-2 rounded-full font-extrabold text-xs uppercase tracking-wider text-white bg-gradient-to-r from-teal-dk to-teal-br shadow-teal hover:-translate-y-0.5 transition-all disabled:opacity-60"
             >
               {saveMutation.isPending ? 'Saving…' : isEdit ? 'Save Changes' : 'Create Meeting'}
             </button>
@@ -155,7 +155,7 @@ export default function NewMeetingPage() {
       </div>
 
       {error && (
-        <div className="text-[11px] text-coral bg-[rgba(239,68,68,0.08)] border border-[rgba(239,68,68,0.2)] rounded-sm px-4 py-3">
+        <div className="text-xs text-coral bg-[rgba(239,68,68,0.08)] border border-[rgba(239,68,68,0.2)] rounded-sm px-4 py-3">
           {error}
         </div>
       )}
@@ -165,42 +165,42 @@ export default function NewMeetingPage() {
         <h2 className="font-extrabold text-navy text-sm mb-4">Meeting Details</h2>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <div>
-            <label className="block text-[9px] font-extrabold uppercase tracking-widest text-muted mb-1">Organisation</label>
+            <label className="block text-[11px] font-extrabold uppercase tracking-widest text-muted mb-1">Organisation</label>
             <input value={organisation} onChange={e => setOrganisation(e.target.value)} placeholder="e.g. Carmel Evangelical Trust"
               className="w-full border-[1.5px] border-bdr rounded-sm px-3 py-2 text-sm text-navy bg-srf focus:border-teal transition-colors" />
           </div>
           <div>
-            <label className="block text-[9px] font-extrabold uppercase tracking-widest text-muted mb-1">Title *</label>
+            <label className="block text-[11px] font-extrabold uppercase tracking-widest text-muted mb-1">Title *</label>
             <input value={title} onChange={e => setTitle(e.target.value)} placeholder="e.g. Q1 Trustees Meeting"
               className="w-full border-[1.5px] border-bdr rounded-sm px-3 py-2 text-sm text-navy bg-srf focus:border-teal transition-colors" />
           </div>
           <div>
-            <label className="block text-[9px] font-extrabold uppercase tracking-widest text-muted mb-1">Subtitle</label>
+            <label className="block text-[11px] font-extrabold uppercase tracking-widest text-muted mb-1">Subtitle</label>
             <input value={subtitle} onChange={e => setSubtitle(e.target.value)} placeholder="Optional subtitle"
               className="w-full border-[1.5px] border-bdr rounded-sm px-3 py-2 text-sm text-navy bg-srf focus:border-teal transition-colors" />
           </div>
           <div>
-            <label className="block text-[9px] font-extrabold uppercase tracking-widest text-muted mb-1">Date *</label>
+            <label className="block text-[11px] font-extrabold uppercase tracking-widest text-muted mb-1">Date *</label>
             <input type="date" value={date} onChange={e => setDate(e.target.value)}
               className="w-full border-[1.5px] border-bdr rounded-sm px-3 py-2 text-sm text-navy bg-srf focus:border-teal transition-colors" />
           </div>
           <div>
-            <label className="block text-[9px] font-extrabold uppercase tracking-widest text-muted mb-1">Start Time</label>
+            <label className="block text-[11px] font-extrabold uppercase tracking-widest text-muted mb-1">Start Time</label>
             <input type="time" value={startTime} onChange={e => setStartTime(e.target.value)}
               className="w-full border-[1.5px] border-bdr rounded-sm px-3 py-2 text-sm font-mono text-navy bg-srf focus:border-teal transition-colors" />
           </div>
           <div>
-            <label className="block text-[9px] font-extrabold uppercase tracking-widest text-muted mb-1">Location</label>
+            <label className="block text-[11px] font-extrabold uppercase tracking-widest text-muted mb-1">Location</label>
             <input value={location} onChange={e => setLocation(e.target.value)} placeholder="Venue or online link"
               className="w-full border-[1.5px] border-bdr rounded-sm px-3 py-2 text-sm text-navy bg-srf focus:border-teal transition-colors" />
           </div>
           <div>
-            <label className="block text-[9px] font-extrabold uppercase tracking-widest text-muted mb-1">Facilitator</label>
+            <label className="block text-[11px] font-extrabold uppercase tracking-widest text-muted mb-1">Facilitator</label>
             <input value={facilitator} onChange={e => setFacilitator(e.target.value)} placeholder="Name"
               className="w-full border-[1.5px] border-bdr rounded-sm px-3 py-2 text-sm text-navy bg-srf focus:border-teal transition-colors" />
           </div>
           <div className="sm:col-span-2">
-            <label className="block text-[9px] font-extrabold uppercase tracking-widest text-muted mb-1">
+            <label className="block text-[11px] font-extrabold uppercase tracking-widest text-muted mb-1">
               Participants <span className="normal-case font-normal">(comma-separated)</span>
             </label>
             <input value={participantsStr} onChange={e => setParticipantsStr(e.target.value)}
@@ -216,7 +216,7 @@ export default function NewMeetingPage() {
         <div className="grid gap-4 sm:grid-cols-3 items-end">
           {/* Alarms toggle */}
           <div>
-            <label className="block text-[9px] font-extrabold uppercase tracking-widest text-muted mb-1">Alarms</label>
+            <label className="block text-[11px] font-extrabold uppercase tracking-widest text-muted mb-1">Alarms</label>
             <button
               type="button"
               onClick={() => setAlarmsEnabled(v => !v)}
@@ -235,7 +235,7 @@ export default function NewMeetingPage() {
 
           {/* Alarm time before */}
           <div>
-            <label className="block text-[9px] font-extrabold uppercase tracking-widest text-muted mb-1">
+            <label className="block text-[11px] font-extrabold uppercase tracking-widest text-muted mb-1">
               Alert Before Session
             </label>
             <select
@@ -253,7 +253,7 @@ export default function NewMeetingPage() {
 
           {/* Alarm type */}
           <div>
-            <label className="block text-[9px] font-extrabold uppercase tracking-widest text-muted mb-1">
+            <label className="block text-[11px] font-extrabold uppercase tracking-widest text-muted mb-1">
               Alarm Type
             </label>
             <select
@@ -285,7 +285,7 @@ export default function NewMeetingPage() {
             ))}
           </select>
           {chosenTemplate && (
-            <p className="text-[10px] text-teal-dk mt-2 font-bold">
+            <p className="text-xs text-teal-dk mt-2 font-bold">
               ✓ Template loaded — you can edit the sessions below
             </p>
           )}
