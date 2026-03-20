@@ -216,3 +216,11 @@ Ship it. Then iterate.
 | P3 | **Participant view URL** — Separate read-only projected view without controls | Large | High for multi-screen setups |
 | P4 | **Action items extraction** — Parse notes for action items (e.g., lines starting with "ACTION:") | Medium | Medium — post-meeting value |
 | P4 | **Timer sound escalation** — At 0min, chime repeats every 30s until session ends | Small | Low-Med — firm facilitation |
+
+---
+
+## Backlog: Auth (Deferred)
+- Re-enable full auth flow (email verification, sign-in/sign-up)
+- Currently disabled for UX testing — Supabase project: rgbtcchlznexvoygncvx
+- When re-enabling: ensure SMTP/email provider configured in Supabase for verification emails
+- Consider: magic link auth instead of email+password for simpler UX

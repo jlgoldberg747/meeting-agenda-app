@@ -1,4 +1,4 @@
-import { Outlet, NavLink, Link, useNavigate } from 'react-router-dom';
+import { Outlet, NavLink, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 
 function NavItem({ to, label }: { to: string; label: string }) {
@@ -19,13 +19,7 @@ function NavItem({ to, label }: { to: string; label: string }) {
 }
 
 export default function Layout() {
-  const { user, signOut } = useAuth();
-  const navigate = useNavigate();
-
-  const handleSignOut = async () => {
-    await signOut();
-    navigate('/login');
-  };
+  const { user } = useAuth();
 
   return (
     <div className="min-h-screen bg-bg">
@@ -55,12 +49,6 @@ export default function Layout() {
           >
             ⚙
           </Link>
-          <button
-            onClick={handleSignOut}
-            className="border-[1.5px] border-coral text-coral text-[9px] font-extrabold uppercase tracking-wider px-3 py-1 rounded-full hover:bg-[var(--coral-hover)] transition-all duration-200"
-          >
-            Sign Out
-          </button>
         </div>
       </nav>
 
