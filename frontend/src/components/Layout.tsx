@@ -8,7 +8,7 @@ function NavItem({ to, label }: { to: string; label: string }) {
       className={({ isActive }) =>
         `px-3 py-1.5 rounded-full text-[10px] font-extrabold uppercase tracking-widest border-[1.5px] transition-all duration-200 ${
           isActive
-            ? 'text-teal-dk bg-[rgba(43,188,200,0.08)] border-[rgba(43,188,200,0.3)]'
+            ? 'text-teal-dk bg-[var(--teal-tint-bg)] border-[var(--teal-tint-bdr)]'
             : 'text-muted border-transparent hover:text-slate hover:bg-srf-alt'
         }`
       }
@@ -57,7 +57,7 @@ export default function Layout() {
           </Link>
           <button
             onClick={handleSignOut}
-            className="border-[1.5px] border-coral text-coral text-[9px] font-extrabold uppercase tracking-wider px-3 py-1 rounded-full hover:bg-[rgba(239,68,68,0.06)] transition-all duration-200"
+            className="border-[1.5px] border-coral text-coral text-[9px] font-extrabold uppercase tracking-wider px-3 py-1 rounded-full hover:bg-[var(--coral-hover)] transition-all duration-200"
           >
             Sign Out
           </button>

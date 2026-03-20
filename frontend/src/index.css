@@ -21,6 +21,39 @@
   --green: #22C55E;
   --purple: #9333EA;
   --orange: #F97316;
+  /* Tint backgrounds (theme-aware) */
+  --teal-tint-bg: rgba(43, 188, 200, 0.08);
+  --teal-tint-bdr: rgba(43, 188, 200, 0.3);
+  --teal-tint-bg-strong: rgba(43, 188, 200, 0.1);
+  --teal-tint-bdr-light: rgba(43, 188, 200, 0.2);
+  --coral-tint-bg: rgba(239, 68, 68, 0.08);
+  --coral-tint-bdr: rgba(239, 68, 68, 0.18);
+  --coral-tint-bdr-strong: rgba(239, 68, 68, 0.2);
+  --coral-hover: rgba(239, 68, 68, 0.06);
+  --overlay-bg: rgba(13, 31, 60, 0.4);
+}
+
+/* ═══ DARK THEME ═══ */
+[data-theme="dark"] {
+  --navy: #E8ECF1;
+  --slate: #A0AEC0;
+  --muted: #64748B;
+  --bdr: #2D3348;
+  --bg: #0F1117;
+  --srf: #1A1D2B;
+  --srf-alt: #242838;
+  --teal-glow: rgba(43, 188, 200, 0.12);
+  --teal-bdr: rgba(43, 188, 200, 0.35);
+  /* Tint backgrounds boosted for dark surfaces */
+  --teal-tint-bg: rgba(43, 188, 200, 0.12);
+  --teal-tint-bdr: rgba(43, 188, 200, 0.35);
+  --teal-tint-bg-strong: rgba(43, 188, 200, 0.18);
+  --teal-tint-bdr-light: rgba(43, 188, 200, 0.25);
+  --coral-tint-bg: rgba(239, 68, 68, 0.12);
+  --coral-tint-bdr: rgba(239, 68, 68, 0.25);
+  --coral-tint-bdr-strong: rgba(239, 68, 68, 0.3);
+  --coral-hover: rgba(239, 68, 68, 0.1);
+  --overlay-bg: rgba(0, 0, 0, 0.65);
 }
 
 * {
@@ -37,6 +70,7 @@ body {
   -webkit-font-smoothing: antialiased;
   font-size: 14px;
   line-height: 1.75;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 p, li {
@@ -152,4 +186,296 @@ input:focus, select:focus, textarea:focus {
 input[type=number]::-webkit-inner-spin-button,
 input[type=number]::-webkit-outer-spin-button {
   -webkit-appearance: none;
+}
+
+/* ═══ LIVE SESSION ENHANCEMENTS ═══ */
+
+/* Hero card for active session */
+@keyframes heroGlow {
+  0%, 100% { box-shadow: 0 0 0 2px rgba(43,188,200,0.15), 0 8px 32px rgba(43,188,200,0.12); }
+  50% { box-shadow: 0 0 0 3px rgba(43,188,200,0.25), 0 8px 32px rgba(43,188,200,0.18); }
+}
+[data-theme="dark"] .hero-card {
+  animation-name: heroGlowDark;
+}
+@keyframes heroGlowDark {
+  0%, 100% { box-shadow: 0 0 0 2px rgba(43,188,200,0.25), 0 8px 32px rgba(43,188,200,0.15); }
+  50% { box-shadow: 0 0 0 3px rgba(43,188,200,0.4), 0 12px 40px rgba(43,188,200,0.25); }
+}
+
+.hero-card {
+  animation: heroGlow 3s ease-in-out infinite;
+  border-color: var(--teal) !important;
+  transform: scale(1);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Completed session collapse */
+.session-done {
+  opacity: 0.35;
+  transition: all 0.4s ease;
+}
+.session-done:hover {
+  opacity: 0.7;
+}
+[data-theme="dark"] .session-done {
+  opacity: 0.45;
+}
+[data-theme="dark"] .session-done:hover {
+  opacity: 0.8;
+}
+
+/* Session transition animation */
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(12px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.session-enter {
+  animation: slideUp 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* Giant countdown timer */
+@keyframes timerPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+.timer-giant {
+  font-size: 52px;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  transition: color 0.5s ease;
+}
+.timer-giant.overtime {
+  animation: timerPulse 1.5s ease-in-out infinite;
+}
+
+/* Progress bar segments */
+.progress-bar {
+  display: flex;
+  height: 6px;
+  border-radius: 3px;
+  overflow: hidden;
+  background: var(--srf-alt);
+  gap: 1px;
+}
+.progress-segment {
+  transition: all 0.5s ease;
+  border-radius: 1px;
+}
+.progress-segment.active {
+  animation: segmentPulse 2s ease-in-out infinite;
+}
+@keyframes segmentPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+/* Break card warm treatment */
+.break-card {
+  background: linear-gradient(135deg, #FFF8F0, #FFF3E6) !important;
+  border-color: rgba(224, 156, 20, 0.2) !important;
+}
+[data-theme="dark"] .break-card {
+  background: linear-gradient(135deg, #2A2518, #2D2718) !important;
+  border-color: rgba(224, 156, 20, 0.3) !important;
+}
+
+/* Up Next preview */
+@keyframes upNextSlide {
+  from { opacity: 0; transform: translateX(-8px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+.up-next {
+  animation: upNextSlide 0.4s ease forwards;
+}
+
+/* Presenter/fullscreen mode */
+.presenter-mode {
+  position: fixed !important;
+  inset: 0;
+  z-index: 9999;
+  overflow-y: auto;
+  background: var(--bg);
+  padding: 16px;
+}
+.presenter-mode .timer-giant {
+  font-size: 64px;
+}
+.presenter-mode .hero-card {
+  font-size: 1.15em;
+}
+
+/* Ambient drift - warm background when behind schedule */
+.drift-behind {
+  background: linear-gradient(180deg, rgba(239,68,68,0.02) 0%, var(--bg) 50%);
+}
+.drift-ahead {
+  background: linear-gradient(180deg, rgba(43,188,200,0.02) 0%, var(--bg) 50%);
+}
+[data-theme="dark"] .drift-behind {
+  background: linear-gradient(180deg, rgba(239,68,68,0.06) 0%, var(--bg) 50%);
+}
+[data-theme="dark"] .drift-ahead {
+  background: linear-gradient(180deg, rgba(43,188,200,0.06) 0%, var(--bg) 50%);
+}
+
+/* Live clock */
+.live-clock {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Completion celebration */
+@keyframes celebratePulse {
+  0% { transform: scale(1); opacity: 0; }
+  50% { transform: scale(1.02); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+.celebrate {
+  animation: celebratePulse 0.8s ease forwards;
+}
+
+/* Smooth auto-scroll anchor */
+.active-session-anchor {
+  scroll-margin-top: 180px;
+}
+
+/* Steam animation for breaks */
+@keyframes steam {
+  0% { transform: translateY(0) scale(1); opacity: 0.6; }
+  50% { transform: translateY(-8px) scale(1.1); opacity: 0.3; }
+  100% { transform: translateY(-16px) scale(1.2); opacity: 0; }
+}
+.steam::after {
+  content: '~';
+  position: absolute;
+  top: -4px;
+  left: 50%;
+  font-size: 12px;
+  color: var(--amber);
+  animation: steam 2s ease-in-out infinite;
+}
+
+/* Keyboard shortcut hint */
+.kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 18px;
+  padding: 0 4px;
+  font-size: 9px;
+  font-weight: 800;
+  font-family: 'DM Mono', monospace;
+  background: var(--srf-alt);
+  border: 1px solid var(--bdr);
+  border-radius: 3px;
+  color: var(--muted);
+  box-shadow: 0 1px 0 var(--bdr);
+}
+
+/* Dark mode toggle button */
+.theme-toggle {
+  position: relative;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  border: 1.5px solid var(--bdr);
+  background: transparent;
+  color: var(--muted);
+}
+.theme-toggle:hover {
+  border-color: var(--teal);
+  color: var(--teal-dk);
+}
+[data-theme="dark"] .theme-toggle {
+  color: #FBBF24;
+  border-color: rgba(251, 191, 36, 0.3);
+}
+[data-theme="dark"] .theme-toggle:hover {
+  border-color: rgba(251, 191, 36, 0.6);
+}
+
+/* ═══ RESPONSIVE — TABLET / MOBILE ═══ */
+
+/* Tablet: 768px–1024px */
+@media (max-width: 1024px) {
+  /* Hero card: stack vertically */
+  .hero-layout {
+    flex-direction: column !important;
+    gap: 16px !important;
+  }
+  .hero-layout .hero-timer-col {
+    text-align: left !important;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .hero-layout .hero-timer-col .timer-giant {
+    font-size: 44px;
+  }
+
+  /* Upcoming cards: simplify grid */
+  .upcoming-grid {
+    grid-template-columns: 1fr !important;
+    gap: 4px !important;
+  }
+  .upcoming-grid > *:nth-child(3) {
+    display: none; /* hide objective column on tablet */
+  }
+
+  /* Stats bar: tighter */
+  .stats-bar {
+    gap: 8px !important;
+    padding: 8px 12px !important;
+  }
+
+  /* Nav: allow wrapping */
+  .cockpit-nav {
+    flex-wrap: wrap;
+    gap: 6px !important;
+  }
+
+  /* Increase tap targets */
+  .tap-target {
+    min-width: 44px;
+    min-height: 44px;
+  }
+}
+
+/* Phone: <768px */
+@media (max-width: 767px) {
+  .hero-layout .hero-timer-col .timer-giant {
+    font-size: 36px;
+  }
+
+  /* Stack nav vertically */
+  .cockpit-nav {
+    padding: 8px !important;
+  }
+  .cockpit-nav .nav-right {
+    width: 100%;
+    justify-content: space-between !important;
+  }
+
+  /* Full-width cards */
+  .presenter-mode {
+    padding: 8px;
+  }
+  .presenter-mode .timer-giant {
+    font-size: 48px;
+  }
+}
+
+/* Hide keyboard hints on touch devices */
+@media (hover: none) and (pointer: coarse) {
+  .kbd-hints {
+    display: none !important;
+  }
 }
